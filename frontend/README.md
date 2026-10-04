@@ -18,6 +18,37 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
+## Seller Dashboard
+
+The initial seller interface is available at `/seller` and is implemented with the Next.js App Router:
+
+- `src/app/seller/layout.js` provides the seller navigation, responsive desktop sidebar/mobile navigation, store header, notification and profile controls, and route-specific page metadata.
+- `src/app/seller/page.js` renders the dashboard summary, sample sales chart, stock reminders, and products nearing their sale cutoff.
+
+Dashboard values and store/profile details are temporary UI sample data. They are not fetched from the API. The other navigation destinations (orders, QR pickup, reviews, store, and settings) are planned routes and have not been implemented yet.
+
+To run and check this interface, start in the `frontend` directory:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000/seller](http://localhost:3000/seller). Validate the seller files with `npm run lint -- src/app/seller` and check the production build with `npm run build`.
+
+## Seller Product Management
+
+Product Management is available at `/seller/products` and uses local sample data only; no database, API, or persistent storage is connected yet.
+
+- `src/app/seller/products/_data/products.js` contains sample surplus-food products, food categories, regular and ReMeal prices, and IDR price formatting.
+- `src/app/seller/products/_components/ProductList.js` provides responsive desktop/mobile product lists, search, category and status filters, empty states, edit links, and simulated deletion.
+- `src/app/seller/products/_components/ProductForm.js` is shared by create and edit pages. It supports a local JPG/PNG/WebP photo preview (maximum 5 MB), required-field and numeric validation, simulated save feedback, and a cancel link back to the product list.
+- `src/app/seller/products/page.js` renders `/seller/products`.
+- `src/app/seller/products/new/page.js` renders `/seller/products/new`.
+- `src/app/seller/products/[id]/edit/page.js` renders `/seller/products/{id}/edit` from the matching sample product ID; unknown IDs show the standard not-found page.
+- `src/app/seller/products/create/page.js` and `src/app/seller/products/[id]/page.js` are compatibility aliases that redirect to the existing create and edit routes.
+
+Sample product IDs include `roti-cokelat`, `croissant-mentega`, `donat-cokelat`, `brownies-potong`, `risoles-mayo`, `nasi-ayam`, `rice-bowl-ayam`, `salad-buah`, and `es-kopi-susu`. Categories are limited to Roti, Kue, Makanan Berat, Snack, Dessert, and Minuman. Run `npm run lint` and `npm run build` from `frontend` to verify this stage.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
