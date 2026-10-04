@@ -77,11 +77,15 @@ Seller Orders is available at `/seller/orders` and `/seller/orders/{orderId}` in
 
 ## Admin Dashboard
 
-`/admin` uses its own responsive admin layout and shows sample platform metrics, activity, order status counts, top UMKMs, expiring food listings, recent transactions, and quick links. All dashboard figures are local sample data. The other admin navigation destinations are links only and their pages are not implemented. No admin API, role protection, or authentication integration is present.
+`/admin` uses its own responsive admin layout and shows sample platform metrics, activity, order status counts, top UMKMs, expiring food listings, recent transactions, and quick links. All dashboard figures are local sample data. Admin Settings remains a navigation link without an implemented page. No admin API, role protection, or authentication integration is present.
 
 ## Admin Users
 
 `/admin/users` displays local sample user records with role/status filters, search, pagination, and a read-only detail dialog. Both the summary totals and listed users are dummy data; no Admin Users service or API is connected.
+
+## Admin Reviews & Reports
+
+`/admin/reviews` displays sample consumer reviews and reported reviews with search, rating and status filters, detail dialogs, and local moderation confirmations. Review and report data and moderation changes are local page state only; the existing review service covers Seller endpoints and is not used by this Admin page.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
