@@ -3,30 +3,36 @@
 import { useMemo, useState } from "react";
 
 const users = [
-  { id: "usr-2026-001", name: "Septiana", email: "septi@remeal.id", phone: "081234567890", role: "Consumer", status: "Aktif", joined: "1 Oktober 2026" },
-  { id: "usr-2026-002", name: "Roti & Rasa", email: "seller@remeal.id", phone: "081234567891", role: "Seller", status: "Aktif", joined: "28 September 2026" },
-  { id: "usr-2026-003", name: "Dapur Mbak Sari", email: "dapur@remeal.id", phone: "081234567892", role: "Seller", status: "Aktif", joined: "25 September 2026" },
-  { id: "usr-2026-004", name: "Admin ReMeal", email: "admin@remeal.id", phone: "", role: "Super Admin", status: "Aktif", joined: "20 September 2026" },
-  { id: "usr-2026-005", name: "Bima Pratama", email: "bima@remeal.id", phone: "081234560005", role: "Consumer", status: "Aktif", joined: "18 September 2026" },
-  { id: "usr-2026-006", name: "Kopi Senja", email: "kopi.senja@remeal.id", phone: "081234560006", role: "Seller", status: "Nonaktif", joined: "16 September 2026" },
-  { id: "usr-2026-007", name: "Nadia Putri", email: "nadia@remeal.id", phone: "081234560007", role: "Consumer", status: "Aktif", joined: "14 September 2026" },
-  { id: "usr-2026-008", name: "Kedai Nusantara", email: "kedai@remeal.id", phone: "081234560008", role: "Seller", status: "Aktif", joined: "12 September 2026" },
-  { id: "usr-2026-009", name: "Rafi Hidayat", email: "rafi@remeal.id", phone: "081234560009", role: "Consumer", status: "Nonaktif", joined: "10 September 2026" },
-  { id: "usr-2026-010", name: "Manis Bakery", email: "manis@remeal.id", phone: "081234560010", role: "Seller", status: "Aktif", joined: "8 September 2026" },
-  { id: "usr-2026-011", name: "Citra Lestari", email: "citra@remeal.id", phone: "081234560011", role: "Consumer", status: "Aktif", joined: "6 September 2026" },
-  { id: "usr-2026-012", name: "Dimas Saputra", email: "dimas@remeal.id", phone: "081234560012", role: "Consumer", status: "Aktif", joined: "4 September 2026" },
-  { id: "usr-2026-013", name: "Warung Pagi", email: "warung.pagi@remeal.id", phone: "081234560013", role: "Seller", status: "Aktif", joined: "2 September 2026" },
-  { id: "usr-2026-014", name: "Sinta Maharani", email: "sinta@remeal.id", phone: "081234560014", role: "Consumer", status: "Aktif", joined: "31 Agustus 2026" },
-  { id: "usr-2026-015", name: "Pawon Ibu", email: "pawon@remeal.id", phone: "081234560015", role: "Seller", status: "Nonaktif", joined: "29 Agustus 2026" },
-  { id: "usr-2026-016", name: "Yoga Firmansyah", email: "yoga@remeal.id", phone: "081234560016", role: "Consumer", status: "Aktif", joined: "27 Agustus 2026" },
-  { id: "usr-2026-017", name: "Dapur Hijau", email: "hijau@remeal.id", phone: "081234560017", role: "Seller", status: "Aktif", joined: "25 Agustus 2026" },
-  { id: "usr-2026-018", name: "Alya Rahma", email: "alya@remeal.id", phone: "081234560018", role: "Consumer", status: "Nonaktif", joined: "23 Agustus 2026" },
-  { id: "usr-2026-019", name: "Nusa Snack", email: "snack@remeal.id", phone: "081234560019", role: "Seller", status: "Aktif", joined: "21 Agustus 2026" },
-  { id: "usr-2026-020", name: "Fajar Wibowo", email: "fajar@remeal.id", phone: "081234560020", role: "Consumer", status: "Aktif", joined: "19 Agustus 2026" },
-  { id: "usr-2026-021", name: "Sari Rasa", email: "sari.rasa@remeal.id", phone: "081234560021", role: "Seller", status: "Aktif", joined: "17 Agustus 2026" },
-  { id: "usr-2026-022", name: "Intan Permata", email: "intan@remeal.id", phone: "081234560022", role: "Consumer", status: "Aktif", joined: "15 Agustus 2026" },
-  { id: "usr-2026-023", name: "Teras Roti", email: "teras@remeal.id", phone: "081234560023", role: "Seller", status: "Aktif", joined: "13 Agustus 2026" },
+  { id: "usr-2026-001", name: "Septiana", email: "septi@remeal.id", phone: "081234567890", role: "consumer", status: "Aktif", joined: "1 Oktober 2026" },
+  { id: "usr-2026-002", name: "Roti & Rasa", email: "seller@remeal.id", phone: "081234567891", role: "seller", status: "Aktif", joined: "28 September 2026" },
+  { id: "usr-2026-003", name: "Dapur Mbak Sari", email: "dapur@remeal.id", phone: "081234567892", role: "seller", status: "Aktif", joined: "25 September 2026" },
+  { id: "usr-2026-004", name: "Admin ReMeal", email: "admin@remeal.id", phone: "", role: "super_admin", status: "Aktif", joined: "20 September 2026" },
+  { id: "usr-2026-005", name: "Bima Pratama", email: "bima@remeal.id", phone: "081234560005", role: "consumer", status: "Aktif", joined: "18 September 2026" },
+  { id: "usr-2026-006", name: "Kopi Senja", email: "kopi.senja@remeal.id", phone: "081234560006", role: "seller", status: "Nonaktif", joined: "16 September 2026" },
+  { id: "usr-2026-007", name: "Nadia Putri", email: "nadia@remeal.id", phone: "081234560007", role: "consumer", status: "Aktif", joined: "14 September 2026" },
+  { id: "usr-2026-008", name: "Kedai Nusantara", email: "kedai@remeal.id", phone: "081234560008", role: "seller", status: "Aktif", joined: "12 September 2026" },
+  { id: "usr-2026-009", name: "Rafi Hidayat", email: "rafi@remeal.id", phone: "081234560009", role: "consumer", status: "Nonaktif", joined: "10 September 2026" },
+  { id: "usr-2026-010", name: "Manis Bakery", email: "manis@remeal.id", phone: "081234560010", role: "seller", status: "Aktif", joined: "8 September 2026" },
+  { id: "usr-2026-011", name: "Citra Lestari", email: "citra@remeal.id", phone: "081234560011", role: "consumer", status: "Aktif", joined: "6 September 2026" },
+  { id: "usr-2026-012", name: "Dimas Saputra", email: "dimas@remeal.id", phone: "081234560012", role: "consumer", status: "Aktif", joined: "4 September 2026" },
+  { id: "usr-2026-013", name: "Warung Pagi", email: "warung.pagi@remeal.id", phone: "081234560013", role: "seller", status: "Aktif", joined: "2 September 2026" },
+  { id: "usr-2026-014", name: "Sinta Maharani", email: "sinta@remeal.id", phone: "081234560014", role: "consumer", status: "Aktif", joined: "31 Agustus 2026" },
+  { id: "usr-2026-015", name: "Pawon Ibu", email: "pawon@remeal.id", phone: "081234560015", role: "seller", status: "Nonaktif", joined: "29 Agustus 2026" },
+  { id: "usr-2026-016", name: "Yoga Firmansyah", email: "yoga@remeal.id", phone: "081234560016", role: "consumer", status: "Aktif", joined: "27 Agustus 2026" },
+  { id: "usr-2026-017", name: "Dapur Hijau", email: "hijau@remeal.id", phone: "081234560017", role: "seller", status: "Aktif", joined: "25 Agustus 2026" },
+  { id: "usr-2026-018", name: "Alya Rahma", email: "alya@remeal.id", phone: "081234560018", role: "consumer", status: "Nonaktif", joined: "23 Agustus 2026" },
+  { id: "usr-2026-019", name: "Nusa Snack", email: "snack@remeal.id", phone: "081234560019", role: "seller", status: "Aktif", joined: "21 Agustus 2026" },
+  { id: "usr-2026-020", name: "Fajar Wibowo", email: "fajar@remeal.id", phone: "081234560020", role: "consumer", status: "Aktif", joined: "19 Agustus 2026" },
+  { id: "usr-2026-021", name: "Sari Rasa", email: "sari.rasa@remeal.id", phone: "081234560021", role: "seller", status: "Aktif", joined: "17 Agustus 2026" },
+  { id: "usr-2026-022", name: "Intan Permata", email: "intan@remeal.id", phone: "081234560022", role: "consumer", status: "Aktif", joined: "15 Agustus 2026" },
+  { id: "usr-2026-023", name: "Teras Roti", email: "teras@remeal.id", phone: "081234560023", role: "seller", status: "Aktif", joined: "13 Agustus 2026" },
 ];
+
+const roleLabels = {
+  consumer: "Consumer",
+  seller: "Seller",
+  super_admin: "Super Admin",
+};
 
 const pageSize = 10;
 const summaryCards = [
@@ -49,15 +55,16 @@ function UserStatusBadge({ status }) {
 }
 
 function RoleBadge({ role }) {
+  const label = roleLabels[role];
   const styles = {
-    Consumer: "bg-[#dce9e7] text-[#3c6861]",
-    Seller: "bg-[#f8e9d4] text-[#94621f]",
-    "Super Admin": "bg-[#eee8f3] text-[#725b84]",
+    consumer: "bg-[#dce9e7] text-[#3c6861]",
+    seller: "bg-[#f8e9d4] text-[#94621f]",
+    super_admin: "bg-[#eee8f3] text-[#725b84]",
   };
 
   return (
     <span className={`inline-flex w-fit whitespace-nowrap rounded-full px-2.5 py-1.5 text-[11px] font-semibold ${styles[role]}`}>
-      {role}
+      {label}
     </span>
   );
 }
@@ -235,7 +242,7 @@ export default function AdminUsersPage() {
           !normalizedSearch ||
           user.name.toLocaleLowerCase("id-ID").includes(normalizedSearch) ||
           user.email.toLocaleLowerCase("id-ID").includes(normalizedSearch);
-        const matchesRole = role === "Semua Role" || user.role === role;
+        const matchesRole = role === "Semua Role" || roleLabels[user.role] === role;
         const matchesStatus = status === "Semua Status" || user.status === status;
         return matchesSearch && matchesRole && matchesStatus;
       }),
