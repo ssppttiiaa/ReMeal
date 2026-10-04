@@ -69,6 +69,12 @@ Seller Orders is available at `/seller/orders` and `/seller/orders/{orderId}` in
 
 `/seller/reviews` shows local sample ratings and consumer comments, with working search, rating/reply-status filters, summary counts, and local reply forms. A seller reply updates only the page state and is not persisted. `src/services/reviews.js` prepares `getSellerReviews()` and `replyToReview(reviewId, reply)` for the seller review API; the UI does not call these functions until backend integration is ready.
 
+## Seller Store
+
+`/seller/store` shows sample shop details, opening hours, and open/closed status. The edit form, logo preview, schedule, and status changes are local UI state only and do not persist or upload files.
+
+`src/services/stores.js` prepares `getMyStore()` for `GET /stores/me` and `updateMyStore(data)` for a conventional `PUT /stores/me`. Confirm the exact update method and schema against the backend OpenAPI before wiring the UI; this frontend does not call the store API.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
