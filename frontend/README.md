@@ -87,6 +87,10 @@ Seller Orders is available at `/seller/orders` and `/seller/orders/{orderId}` in
 
 `/admin/reviews` displays sample consumer reviews and reported reviews with search, rating and status filters, detail dialogs, and local moderation confirmations. Review and report data and moderation changes are local page state only; the existing review service covers Seller endpoints and is not used by this Admin page.
 
+## Admin Settings
+
+`/admin/settings` provides local profile editing, frontend-only password form validation, notification toggles, display/language preferences, system information, and a logout confirmation simulation. No profile, password, preference, notification, or authentication API is connected; password values are cleared without being persisted.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
