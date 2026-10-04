@@ -25,7 +25,7 @@ The initial seller interface is available at `/seller` and is implemented with t
 - `src/app/seller/layout.js` provides the seller navigation, responsive desktop sidebar/mobile navigation, store header, notification and profile controls, and route-specific page metadata.
 - `src/app/seller/page.js` renders the dashboard summary, sample sales chart, stock reminders, and products nearing their sale cutoff.
 
-Dashboard values and store/profile details are temporary UI sample data. They are not fetched from the API. The other navigation destinations (orders, QR pickup, reviews, store, and settings) are planned routes and have not been implemented yet.
+Dashboard values and store/profile details are temporary UI sample data. They are not fetched from the API. QR pickup, reviews, store, and settings remain planned routes.
 
 To run and check this interface, start in the `frontend` directory:
 
@@ -48,6 +48,16 @@ Product Management is available at `/seller/products` and uses local sample data
 - `src/app/seller/products/create/page.js` and `src/app/seller/products/[id]/page.js` are compatibility aliases that redirect to the existing create and edit routes.
 
 Sample product IDs include `roti-cokelat`, `croissant-mentega`, `donat-cokelat`, `brownies-potong`, `risoles-mayo`, `nasi-ayam`, `rice-bowl-ayam`, `salad-buah`, and `es-kopi-susu`. Categories are limited to Roti, Kue, Makanan Berat, Snack, Dessert, and Minuman. Run `npm run lint` and `npm run build` from `frontend` to verify this stage.
+
+## Seller Orders
+
+Seller Orders is available at `/seller/orders` and `/seller/orders/{orderId}` inside the existing seller layout.
+
+- `src/app/seller/orders/_data/orders.js` holds local sample orders and the shared status/price helpers.
+- `src/app/seller/orders/_components/OrderList.js` renders status summaries, search, status filtering, a desktop table, and mobile order cards.
+- `src/app/seller/orders/[orderId]/page.js` renders sample order details and clearly marks fields not available in the sample data.
+- `src/services/orders.js` prepares `getSellerOrders()`, `getSellerOrderById(orderId)`, and `confirmSellerOrder(orderId)` for the `/seller/orders` API paths. Configure `NEXT_PUBLIC_API_URL` before calling these functions.
+- The list and detail pages currently use local sample data. They do not call the API or persist order changes. QR verification and order completion are not implemented.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
