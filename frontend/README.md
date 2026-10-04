@@ -75,6 +75,10 @@ Seller Orders is available at `/seller/orders` and `/seller/orders/{orderId}` in
 
 `src/services/stores.js` prepares `getMyStore()` for `GET /stores/me` and `updateMyStore(data)` for a conventional `PUT /stores/me`. Confirm the exact update method and schema against the backend OpenAPI before wiring the UI; this frontend does not call the store API.
 
+## Admin Dashboard
+
+`/admin` uses its own responsive admin layout and shows sample platform metrics, activity, order status counts, top UMKMs, expiring food listings, recent transactions, and quick links. All dashboard figures are local sample data. The other admin navigation destinations are links only and their pages are not implemented. No admin API, role protection, or authentication integration is present.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
