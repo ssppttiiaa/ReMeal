@@ -59,6 +59,12 @@ Seller Orders is available at `/seller/orders` and `/seller/orders/{orderId}` in
 - `src/services/orders.js` prepares `getSellerOrders()`, `getSellerOrderById(orderId)`, and `confirmSellerOrder(orderId)` for the `/seller/orders` API paths. Configure `NEXT_PUBLIC_API_URL` before calling these functions.
 - The list and detail pages currently use local sample data. They do not call the API or persist order changes. QR verification and order completion are not implemented.
 
+## Seller QR Pickup
+
+`/seller/qr-pickup` provides a local QR scan simulation using sample food orders. The "Simulasikan Scan QR" action selects a ready-for-pickup sample order; a separate failure simulation shows an invalid QR. Confirming pickup changes the selected order to "Selesai" only in the page's local state. The camera and persistence are not implemented.
+
+`src/services/orders.js` also prepares `verifySellerOrderQR(qrCode)` and `completeSellerOrder(orderId)` for `POST /seller/orders/verify-qr` and `POST /seller/orders/{orderId}/complete`. The QR Pickup page does not call these endpoints; wire them after backend implementation is confirmed.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More

@@ -37,3 +37,19 @@ export function confirmSellerOrder(orderId) {
     { method: "POST" },
   );
 }
+
+// These endpoint wrappers are prepared for backend integration; QR Pickup UI currently stays local.
+export function verifySellerOrderQR(qrCode) {
+  return requestSellerOrders(`${SELLER_ORDERS_PATH}/verify-qr`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ qrCode }),
+  });
+}
+
+export function completeSellerOrder(orderId) {
+  return requestSellerOrders(
+    `${SELLER_ORDERS_PATH}/${encodeURIComponent(orderId)}/complete`,
+    { method: "POST" },
+  );
+}

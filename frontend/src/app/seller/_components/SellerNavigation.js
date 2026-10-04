@@ -7,7 +7,7 @@ const navigation = [
   { label: "Dashboard", href: "/seller", icon: "dashboard" },
   { label: "Produk", href: "/seller/products", icon: "products" },
   { label: "Pesanan", href: "/seller/orders", icon: "orders" },
-  { label: "QR Pickup", href: "/seller/qr", icon: "qr" },
+  { label: "QR Pickup", href: "/seller/qr-pickup", icon: "qr" },
   { label: "Review", href: "/seller/reviews", icon: "reviews" },
   { label: "Toko", href: "/seller/store", icon: "store" },
   { label: "Pengaturan", href: "/seller/settings", icon: "settings" },
