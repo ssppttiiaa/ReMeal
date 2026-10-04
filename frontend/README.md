@@ -65,6 +65,10 @@ Seller Orders is available at `/seller/orders` and `/seller/orders/{orderId}` in
 
 `src/services/orders.js` also prepares `verifySellerOrderQR(qrCode)` and `completeSellerOrder(orderId)` for `POST /seller/orders/verify-qr` and `POST /seller/orders/{orderId}/complete`. The QR Pickup page does not call these endpoints; wire them after backend implementation is confirmed.
 
+## Seller Reviews
+
+`/seller/reviews` shows local sample ratings and consumer comments, with working search, rating/reply-status filters, summary counts, and local reply forms. A seller reply updates only the page state and is not persisted. `src/services/reviews.js` prepares `getSellerReviews()` and `replyToReview(reviewId, reply)` for the seller review API; the UI does not call these functions until backend integration is ready.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
