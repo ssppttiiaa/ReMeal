@@ -9,14 +9,9 @@ import {
   getAllSellerProducts,
   getProductCategories,
   updateSellerProduct,
+  uploadSellerProductPhoto,
 } from "@/services/products";
-import { SELLER_DEV_MODE } from "@/lib/sellerDevMode";
-import {
-  createMockSellerProduct,
-  getMockProductCategories,
-  getMockSellerProducts,
-  updateMockSellerProduct,
-} from "../_data/sellerDevStore";
+
 
 const fieldClassName =
   "mt-2 h-11 w-full rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none transition placeholder:text-[#8B8172] focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]";
@@ -62,6 +57,7 @@ export default function ProductForm({ mode, productId }) {
   const [errors, setErrors] = useState({});
   const [requestError, setRequestError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -69,9 +65,7 @@ export default function ProductForm({ mode, productId }) {
 
     async function loadCategories() {
       try {
-        const result = SELLER_DEV_MODE
-          ? getMockProductCategories()
-          : await getProductCategories();
+        const result = await getProductCategories();
         if (!Array.isArray(result)) throw new Error("Format daftar kategori tidak valid.");
         if (active) {
           setCategories(result);
@@ -87,9 +81,7 @@ export default function ProductForm({ mode, productId }) {
     loadCategories();
 
     if (isEdit) {
-      const productsPromise = SELLER_DEV_MODE
-        ? Promise.resolve(getMockSellerProducts())
-        : getAllSellerProducts();
+      const productsPromise = getAllSellerProducts();
       productsPromise
         .then((products) => {
           const product = products.find((item) => item.id === productId);
@@ -131,6 +123,27 @@ export default function ProductForm({ mode, productId }) {
     setForm((current) => ({ ...current, [name]: value }));
     setErrors((current) => ({ ...current, [name]: "" }));
     setRequestError("");
+  }
+
+  async function handleFileChange(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    setErrors((current) => ({ ...current, photoUrl: "" }));
+    try {
+      const result = await uploadSellerProductPhoto(file);
+      if (result?.data?.url) {
+        setForm((current) => ({ ...current, photoUrl: result.data.url }));
+      }
+    } catch (error) {
+      setErrors((current) => ({
+        ...current,
+        photoUrl: error instanceof Error ? error.message : "Gagal mengunggah foto.",
+      }));
+    } finally {
+      setUploadingImage(false);
+    }
   }
 
   async function handleSubmit(event) {
@@ -210,18 +223,10 @@ export default function ProductForm({ mode, productId }) {
 
     setSubmitting(true);
     try {
-      if (SELLER_DEV_MODE) {
-        if (isEdit) {
-          updateMockSellerProduct(productId, payload);
-        } else {
-          createMockSellerProduct(payload);
-        }
+      if (isEdit) {
+        await updateSellerProduct(productId, payload);
       } else {
-        if (isEdit) {
-          await updateSellerProduct(productId, payload);
-        } else {
-          await createSellerProduct(payload);
-        }
+        await createSellerProduct(payload);
       }
       setSaved(true);
       window.setTimeout(() => router.replace("/seller/products"), 900);
@@ -302,24 +307,26 @@ export default function ProductForm({ mode, productId }) {
                   <span className="relative block h-[108px] w-full overflow-hidden rounded-md">
                     <Image alt="Pratinjau foto produk" className="object-cover" fill sizes="180px" src={form.photoUrl} unoptimized />
                   </span>
+                ) : uploadingImage ? (
+                  <span className="text-xs font-semibold text-[#29261F]">Mengunggah...</span>
                 ) : (
                   <>
                     <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-[#F4C542] text-lg text-[#29261F]">+</span>
-                    <span className="mt-2 text-xs font-semibold text-[#29261F]">Masukkan URL foto</span>
+                    <span className="mt-2 text-xs font-semibold text-[#29261F]">Pilih foto</span>
                   </>
                 )}
               </div>
               <input
-                aria-invalid={Boolean(errors.photoUrl)}
-                className={fieldClassName}
+                accept="image/*"
+                className="mt-3 block w-full text-xs text-[#8B8172] file:mr-3 file:rounded-full file:border-0 file:bg-[#29261F] file:px-4 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-[#29261F]/80"
+                disabled={uploadingImage}
+                id="photoUrl"
                 name="photoUrl"
-                onChange={handleChange}
-                placeholder="https://contoh.com/foto.jpg"
-                type="url"
-                value={form.photoUrl}
+                onChange={handleFileChange}
+                type="file"
               />
               <FieldError>{errors.photoUrl}</FieldError>
-              <p className="mt-1 text-[10px] leading-4 text-[#8B8172]">Upload file belum tersedia; backend menerima URL foto.</p>
+              <p className="mt-1.5 text-[10px] leading-4 text-[#8B8172]">Format gambar disarankan JPG atau PNG.</p>
             </div>
 
             <div className="grid content-start gap-4 sm:grid-cols-2">
@@ -463,14 +470,14 @@ export default function ProductForm({ mode, productId }) {
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Link
             aria-disabled={submitting}
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#29261F]/15 bg-[#FFF9EF] px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7]"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#29261F]/15 bg-[#F7F1E7] px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#EAE1D1]"
             href="/seller/products"
           >
             Batal
           </Link>
           <button
-            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C] disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={submitting || categoriesLoading || categoriesError !== ""}
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#29261F] px-5 text-sm font-semibold text-white transition hover:bg-[#433E33] disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={submitting || categoriesLoading || categoriesError !== "" || uploadingImage}
             type="submit"
           >
             {submitting ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Simpan Produk"}

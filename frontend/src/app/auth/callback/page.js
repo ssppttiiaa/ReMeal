@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
+import { saveSession as saveConsumerSession } from "../../../lib/consumer-api";
 
 const destinations = {
   seller: "/seller",
   super_admin: "/admin",
+  consumer: "/consumer",
 };
 
 function getApiBaseUrl() {
@@ -105,10 +107,11 @@ export default function AuthCallbackPage() {
       }
 
       if (profile.role === "consumer") {
-        setMessage(
-          "Email berhasil dikonfirmasi dan session telah disimpan. Halaman Consumer belum tersedia di frontend ini.",
-        );
-        return;
+        saveConsumerSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          user: { id: user.id },
+        });
       }
 
       const destination = destinations[profile.role];

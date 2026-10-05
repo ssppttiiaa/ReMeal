@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { supabase } from "../../../lib/supabase";
+import { getMyStore } from "../../../services/stores";
 
 const navigation = [
   { label: "Dashboard", href: "/seller", icon: "dashboard" },
@@ -81,4 +84,94 @@ export function NavigationLinks({ mobile = false }) {
       </Link>
     );
   });
+}
+
+function useSellerProfile() {
+  const [profile, setProfile] = useState({ userName: "Seller", initials: "S", storeName: "Toko Belum Dibuat", storeInitials: "T" });
+
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        let name = "Seller";
+        if (session?.user) {
+          name = session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "Seller";
+        }
+        
+        let sName = "Toko Belum Dibuat";
+        let sInitials = "T";
+        try {
+          const store = await getMyStore();
+          if (store && store.name) {
+            sName = store.name;
+            sInitials = store.name.slice(0, 2).toUpperCase();
+          }
+        } catch(e) {
+          // ignore
+        }
+
+        if (active) {
+          setProfile({
+            userName: name,
+            initials: name.slice(0, 2).toUpperCase(),
+            storeName: sName,
+            storeInitials: sInitials
+          });
+        }
+      } catch (err) {}
+    }
+    load();
+    return () => { active = false; };
+  }, []);
+
+  return profile;
+}
+
+export function SellerSidebarProfile() {
+  const profile = useSellerProfile();
+  return (
+    <div className="mt-auto rounded-xl border bg-[#FFF9EF] p-4">
+      <div className="flex items-center gap-2 text-xs font-semibold text-[#29261F]">
+        <span className={`h-2 w-2 rounded-full ${profile.storeName === "Toko Belum Dibuat" ? "bg-red-500" : "bg-[#F4C542]"}`} />
+        {profile.storeName === "Toko Belum Dibuat" ? "Toko belum ada" : "Toko aktif"}
+      </div>
+      <p className="mt-2 text-sm font-semibold">{profile.storeName}</p>
+      <p className="mt-1 text-xs leading-5 text-[#29261F]">Selamat menyelamatkan makanan hari ini.</p>
+    </div>
+  );
+}
+
+export function SellerHeaderProfile() {
+  const profile = useSellerProfile();
+  return (
+    <>
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="panel-brand-mark grid h-9 w-9 shrink-0 place-items-center rounded-lg text-xs font-black lg:hidden">
+          R.
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold">{profile.storeName}</p>
+          <p className="mt-0.5 text-xs text-[#8B8172]">Panel pengelolaan toko</p>
+        </div>
+      </div>
+      
+      {/* We need to render the right side inside the header. Wait, the layout renders this. I should export a wrapper or just export the user info part. */}
+    </>
+  );
+}
+
+export function SellerUserDropdown() {
+  const profile = useSellerProfile();
+  return (
+    <button className="panel-header-action flex items-center gap-2.5 rounded-full px-2 py-1 text-left" type="button">
+      <span className="grid h-9 w-9 place-items-center rounded-full bg-[#F8E7A8] text-xs font-bold text-[#29261F]">
+        {profile.initials}
+      </span>
+      <span className="hidden sm:block">
+        <span className="block text-xs font-semibold">{profile.userName}</span>
+        <span className="mt-0.5 block text-[11px] text-[#8B8172]">Pemilik toko</span>
+      </span>
+    </button>
+  );
 }

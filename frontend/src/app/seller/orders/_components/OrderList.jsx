@@ -1,14 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import {
-  formatOrderPrice,
-  getOrderProductsLabel,
-  getOrderQuantity,
-  orderStatuses,
-  sampleOrders,
-} from "../_data/orders";
+import { useMemo, useState, useEffect } from "react";
+import { getSellerOrders } from "../../../../services/orders";
+import { formatOrderPrice } from "../_data/orders";
+
+const orderStatuses = [
+  "Menunggu Pembayaran",
+  "Diproses",
+  "Siap Diambil",
+  "Selesai",
+  "Dibatalkan",
+];
 
 const statusStyles = {
   "Menunggu Pembayaran": "bg-[#F8E7A8] text-[#29261F]",
@@ -16,14 +19,40 @@ const statusStyles = {
   "Siap Diambil": "bg-[#F4C542] text-[#29261F]",
   Selesai: "bg-[#F4C542] text-[#29261F]",
   Dibatalkan: "bg-[#29261F] text-white",
+  // Map API status as fallback
+  pending: "bg-[#F8E7A8] text-[#29261F]",
+  paid: "bg-[#E89B3C] text-[#29261F]",
+  completed: "bg-[#F4C542] text-[#29261F]",
+  cancelled: "bg-[#29261F] text-white",
 };
 
+const mapApiStatus = (s) => {
+  if (s === 'pending') return "Menunggu Pembayaran";
+  if (s === 'paid') return "Siap Diambil";
+  if (s === 'completed') return "Selesai";
+  if (s === 'cancelled') return "Dibatalkan";
+  return s;
+};
+
+function getOrderProductsLabel(order) {
+  if (!order.items || order.items.length === 0) return "Pesanan Kosong";
+  const firstItemName = order.items[0].product_name || order.items[0].name;
+  if (order.items.length === 1) return firstItemName;
+  return `${firstItemName} dan ${order.items.length - 1} lainnya`;
+}
+
+function getOrderQuantity(order) {
+  if (!order.items || order.items.length === 0) return 0;
+  return order.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+}
+
 function StatusBadge({ status }) {
+  const displayStatus = mapApiStatus(status);
   return (
     <span
-      className={`inline-flex w-fit whitespace-nowrap rounded-full px-2.5 py-1.5 text-[11px] font-semibold ${statusStyles[status]}`}
+      className={`inline-flex w-fit whitespace-nowrap rounded-full px-2.5 py-1.5 text-[11px] font-semibold ${statusStyles[displayStatus] || "bg-gray-200"}`}
     >
-      {status}
+      {displayStatus}
     </span>
   );
 }
@@ -37,11 +66,12 @@ function OrderLink({ order, className }) {
 }
 
 function MobileOrderCard({ order }) {
+  const displayStatus = mapApiStatus(order.status);
   return (
     <article className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-bold text-[#29261F]">#{order.id}</p>
+          <p className="text-sm font-bold text-[#29261F]">#{order.id.slice(0, 8)}</p>
           <p className="mt-1 text-xs text-[#8B8172]">{order.time}</p>
         </div>
         <StatusBadge status={order.status} />
@@ -56,7 +86,7 @@ function MobileOrderCard({ order }) {
         </div>
         <div>
           <p className="text-[#8B8172]">Total</p>
-          <p className="mt-1 font-semibold text-[#29261F]">{formatOrderPrice(order.total)}</p>
+          <p className="mt-1 font-semibold text-[#29261F]">{formatOrderPrice(order.total_amount || order.total)}</p>
         </div>
       </div>
       <OrderLink
@@ -70,23 +100,48 @@ function MobileOrderCard({ order }) {
 export default function OrderList() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("Semua status");
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    getSellerOrders()
+      .then((res) => {
+        if (!active) return;
+        const fetched = (res.data || []).map(o => ({
+          ...o,
+          time: new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(new Date(o.created_at))
+        }));
+        setOrders(fetched);
+      })
+      .catch((err) => {
+        if (active) setError(err.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
+
   const normalizedSearch = search.trim().toLocaleLowerCase("id-ID");
 
   const filteredOrders = useMemo(
     () =>
-      sampleOrders.filter((order) => {
+      orders.filter((order) => {
         const searchText = `${order.id} ${getOrderProductsLabel(order)}`.toLocaleLowerCase("id-ID");
+        const displayStatus = mapApiStatus(order.status);
         return (
           (!normalizedSearch || searchText.includes(normalizedSearch)) &&
-          (status === "Semua status" || order.status === status)
+          (status === "Semua status" || displayStatus === status)
         );
       }),
-    [normalizedSearch, status],
+    [normalizedSearch, status, orders],
   );
 
   const orderCounts = orderStatuses.map((item) => ({
     status: item,
-    count: sampleOrders.filter((order) => order.status === item).length,
+    count: orders.filter((order) => mapApiStatus(order.status) === item).length,
   }));
 
   return (
@@ -97,16 +152,18 @@ export default function OrderList() {
           Pesanan
         </h1>
         <p className="mt-2 max-w-xl text-sm leading-6 text-[#8B8172]">
-          Pantau status dan detail pesanan toko. Data saat ini hanya contoh untuk pratinjau.
+          Pantau status dan detail pesanan toko secara live.
         </p>
       </div>
+
+      {error && <p className="text-red-500 font-semibold">{error}</p>}
 
       <section aria-label="Ringkasan pesanan berdasarkan status" className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
         {orderCounts.map(({ status: item, count }) => (
           <article className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4" key={item}>
             <p className="min-h-8 text-xs font-medium leading-4 text-[#8B8172]">{item}</p>
             <p className="mt-2 text-2xl font-bold tracking-[-0.04em] text-[#29261F]">{count}</p>
-            <p className="mt-1 text-[11px] text-[#8B8172]">pesanan contoh</p>
+            <p className="mt-1 text-[11px] text-[#8B8172]">pesanan</p>
           </article>
         ))}
       </section>
@@ -149,7 +206,9 @@ export default function OrderList() {
           <span className="text-xs text-[#8B8172]">{filteredOrders.length} pesanan</span>
         </div>
 
-        {filteredOrders.length === 0 ? (
+        {loading ? (
+          <p className="text-sm text-[#8B8172]">Memuat pesanan...</p>
+        ) : filteredOrders.length === 0 ? (
           <div className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] px-5 py-12 text-center">
             <h3 className="text-sm font-bold text-[#29261F]">Pesanan tidak ditemukan</h3>
             <p className="mt-1.5 text-sm text-[#8B8172]">Coba ubah kata kunci atau status yang dipilih.</p>
@@ -185,10 +244,10 @@ export default function OrderList() {
                 <tbody className="divide-y divide-[#29261f]/[0.07]">
                   {filteredOrders.map((order) => (
                     <tr className="text-sm text-[#29261F]" key={order.id}>
-                      <td className="px-4 py-4 font-bold">#{order.id}</td>
+                      <td className="px-4 py-4 font-bold">#{order.id.slice(0, 8)}</td>
                       <td className="break-words px-4 py-4 font-medium leading-5">{getOrderProductsLabel(order)}</td>
                       <td className="px-4 py-4">{getOrderQuantity(order)} item</td>
-                      <td className="px-4 py-4 font-semibold">{formatOrderPrice(order.total)}</td>
+                      <td className="px-4 py-4 font-semibold">{formatOrderPrice(order.total_amount || order.total)}</td>
                       <td className="px-4 py-4"><StatusBadge status={order.status} /></td>
                       <td className="px-4 py-4 text-[#8B8172]">{order.time}</td>
                       <td className="px-4 py-4">
@@ -205,8 +264,6 @@ export default function OrderList() {
           </>
         )}
       </section>
-
-      <p className="text-center text-[11px] text-[#8B8172]">Data pesanan contoh — belum terhubung ke database.</p>
     </div>
   );
 }

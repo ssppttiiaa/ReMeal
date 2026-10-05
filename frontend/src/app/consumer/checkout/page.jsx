@@ -36,7 +36,7 @@ export default function CheckoutPage() {
     event.preventDefault();
     const token = getAccessToken();
     if (!token) {
-      router.push(`/consumer/auth?next=${encodeURIComponent('/consumer/checkout')}`);
+      router.push(`/login?next=${encodeURIComponent('/consumer/checkout')}`);
       return;
     }
     setLoading(true);

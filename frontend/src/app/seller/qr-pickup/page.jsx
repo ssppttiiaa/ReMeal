@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Html5Qrcode } from "html5-qrcode";
 import { SELLER_DEV_MODE } from "@/lib/sellerDevMode";
 import { getSellerOrders, verifySellerOrderQR } from "@/services/orders";
-import { formatOrderPrice, sampleOrders } from "../orders/_data/orders";
+import { formatOrderPrice } from "../orders/_data/orders";
 
 const demoQrCode = "DEV-RM002";
 
@@ -49,20 +50,13 @@ export default function SellerQrPickupPage() {
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [verifying, setVerifying] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
+  const [facingMode, setFacingMode] = useState("environment");
   const [error, setError] = useState("");
   const [feedback, setFeedback] = useState("");
-  const videoRef = useRef(null);
-  const streamRef = useRef(null);
+  const scannerRef = useRef(null);
 
   const refreshOrders = useCallback(async () => {
-    if (SELLER_DEV_MODE) {
-      setOrders(sampleOrders.map((order) => ({
-        ...order,
-        status: order.id === "RM002" ? "Siap Diambil" : order.status,
-      })));
-      setLoadingOrders(false);
-      return;
-    }
+
 
     setLoadingOrders(true);
     setError("");
@@ -85,13 +79,21 @@ export default function SellerQrPickupPage() {
   }, [refreshOrders]);
 
   const stopCamera = useCallback(() => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
-    setCameraActive(false);
+    if (scannerRef.current) {
+      scannerRef.current.stop().catch(console.error).finally(() => {
+        scannerRef.current.clear();
+        scannerRef.current = null;
+        setCameraActive(false);
+      });
+    } else {
+      setCameraActive(false);
+    }
   }, []);
 
   useEffect(() => () => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
+    if (scannerRef.current) {
+      scannerRef.current.stop().catch(console.error);
+    }
   }, []);
 
   const verifyCode = useCallback(async (value = qrCode) => {
@@ -101,32 +103,7 @@ export default function SellerQrPickupPage() {
     setFeedback("");
     setVerifiedOrder(null);
 
-    if (SELLER_DEV_MODE) {
-      if (code !== demoQrCode) {
-        setError(`QR contoh tidak valid. Untuk simulasi, gunakan ${demoQrCode}.`);
-        return;
-      }
-      if (!orders.some((order) => order.id === "RM002" && order.status === "Siap Diambil")) {
-        setError("Pesanan simulasi ini sudah selesai diambil.");
-        return;
-      }
-      const completedAt = new Date().toISOString();
-      setOrders((current) => current.map((order) => order.id === "RM002"
-        ? { ...order, status: "Selesai", completed_at: completedAt }
-        : order));
-      setVerifiedOrder({
-        id: "RM002",
-        order_code: "RM002",
-        status: "completed",
-        product: { name: sampleOrders[1].items[0].name },
-        quantity: sampleOrders[1].items[0].quantity,
-        total_price: sampleOrders[1].total,
-        completed_at: completedAt,
-      });
-      setFeedback("Simulasi dev berhasil. Tidak ada perubahan yang dikirim ke backend.");
-      stopCamera();
-      return;
-    }
+
 
     setVerifying(true);
     try {
@@ -147,68 +124,40 @@ export default function SellerQrPickupPage() {
     }
   }, [orders, qrCode, refreshOrders, stopCamera, verifying]);
 
-  useEffect(() => {
-    if (!cameraActive || !videoRef.current) return undefined;
-
-    const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
-    const video = videoRef.current;
-    const stream = streamRef.current;
-    let detecting = false;
-    let timer;
-    let cancelled = false;
-
-    video.srcObject = stream;
-    video.play().then(() => {
-      if (cancelled) return;
-      timer = window.setInterval(async () => {
-        if (detecting || !videoRef.current) return;
-        detecting = true;
-        try {
-          const results = await detector.detect(video);
-          const value = results[0]?.rawValue;
-          if (value) {
-            setQrCode(value);
-            void verifyCode(value);
-          }
-        } catch (reason) {
-          setError(messageFromError(reason));
-          stopCamera();
-        } finally {
-          detecting = false;
-        }
-      }, 350);
-    }).catch((reason) => {
-      setError(messageFromError(reason));
-      stopCamera();
-    });
-
-    return () => {
-      cancelled = true;
-      if (timer) window.clearInterval(timer);
-    };
-  }, [cameraActive, stopCamera, verifyCode]);
-
-  async function startCamera() {
+  async function startCamera(mode = facingMode) {
     setError("");
-    if (!("BarcodeDetector" in window)) {
-      setError("Browser ini belum mendukung pemindaian QR kamera. Masukkan kode QR secara manual.");
-      return;
-    }
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setError("Kamera tidak tersedia. Gunakan input kode QR manual.");
-      return;
-    }
+    setFeedback("");
     try {
-      streamRef.current = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: { facingMode: { ideal: "environment" } },
-      });
+      if (scannerRef.current) {
+        await scannerRef.current.stop().catch(() => {});
+        scannerRef.current.clear();
+      }
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      scannerRef.current = html5QrCode;
       setCameraActive(true);
+      
+      await html5QrCode.start(
+        { facingMode: mode },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+          setQrCode(decodedText);
+          void verifyCode(decodedText);
+        },
+        () => {} // ignore frame errors
+      );
     } catch (reason) {
       setError(messageFromError(reason));
       stopCamera();
     }
   }
+
+  const toggleCamera = () => {
+    const newMode = facingMode === "environment" ? "user" : "environment";
+    setFacingMode(newMode);
+    if (cameraActive) {
+      startCamera(newMode);
+    }
+  };
 
   const readyCount = orders.filter((order) => order.status === "confirmed" || order.status === "Siap Diambil").length;
 
@@ -224,23 +173,18 @@ export default function SellerQrPickupPage() {
         </p>
       </header>
 
-      {SELLER_DEV_MODE ? (
-        <p className="rounded-lg border border-[#29261F]/10 bg-[#F8E7A8] px-4 py-3 text-sm text-[#29261F]" role="status">
-          Mode development: gunakan kode simulasi <strong>{demoQrCode}</strong>. Verifikasi tidak dikirim ke backend.
-        </p>
-      ) : null}
+
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.9fr)]">
         <section aria-label="Pemindaian QR" className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-6">
           <div className="mx-auto flex min-h-[290px] max-w-xl flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#29261F] bg-[#F7F1E7] px-4 py-8 text-center sm:min-h-[340px]">
-            {cameraActive ? (
-              <video aria-label="Pratinjau kamera pemindai QR" autoPlay className="max-h-64 w-full rounded-lg object-cover" muted playsInline ref={videoRef} />
-            ) : (
+            <div id="qr-reader" className={cameraActive ? "w-full max-w-sm rounded-lg overflow-hidden" : "hidden"}></div>
+            {!cameraActive && (
               <div className="grid h-20 w-20 place-items-center rounded-2xl bg-[#F4C542]"><ScannerMark /></div>
             )}
             <h2 className="mt-5 text-base font-bold text-[#29261F]">Pindai QR Code Pesanan</h2>
             <p className="mt-2 max-w-sm text-sm leading-6 text-[#8B8172]">
-              Kamera memerlukan izin browser. Jika pemindaian kamera tidak didukung, masukkan kode QR secara manual.
+              Kamera memerlukan izin browser. Masukkan kode manual jika kamera bermasalah.
             </p>
             <div className="mt-5 flex w-full max-w-sm flex-col gap-2">
               <label className="sr-only" htmlFor="pickup-qr-code">Kode QR pesanan</label>
@@ -260,9 +204,14 @@ export default function SellerQrPickupPage() {
               />
               <div className="flex flex-col gap-2 sm:flex-row">
                 {cameraActive ? (
-                  <button className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-[#29261F]/20 px-4 text-sm font-semibold text-[#29261F]" onClick={stopCamera} type="button">
-                    Hentikan Kamera
-                  </button>
+                  <>
+                    <button className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-[#29261F]/20 px-2 text-sm font-semibold text-[#29261F]" onClick={toggleCamera} type="button">
+                      Kamera {facingMode === "environment" ? "Depan" : "Belakang"}
+                    </button>
+                    <button className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-[#29261F]/20 px-2 text-sm font-semibold text-[#29261F]" onClick={stopCamera} type="button">
+                      Tutup
+                    </button>
+                  </>
                 ) : (
                   <button className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-[#29261F]/20 px-4 text-sm font-semibold text-[#29261F] hover:bg-[#F8E7A8]" onClick={() => void startCamera()} type="button">
                     Buka Kamera
@@ -277,15 +226,11 @@ export default function SellerQrPickupPage() {
                   {verifying ? "Memverifikasi…" : "Verifikasi QR"}
                 </button>
               </div>
-              {SELLER_DEV_MODE ? (
-                <button className="text-xs font-semibold text-[#8B8172] underline" onClick={() => { setQrCode(demoQrCode); void verifyCode(demoQrCode); }} type="button">
-                  Coba simulasi QR development
-                </button>
-              ) : null}
+
             </div>
           </div>
           <p className="mt-4 text-center text-[11px] text-[#8B8172]">
-            {loadingOrders ? "Memuat daftar pesanan…" : `${readyCount} pesanan siap pickup · data dari ${SELLER_DEV_MODE ? "simulasi development" : "backend"}`}
+            {loadingOrders ? "Memuat daftar pesanan…" : `${readyCount} pesanan siap pickup · data dari backend`}
           </p>
         </section>
 

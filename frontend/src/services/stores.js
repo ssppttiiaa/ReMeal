@@ -71,10 +71,70 @@ export function getMyStore() {
 
 export function updateMyStore(data) {
   return requestMyStore({
-    method: "PUT",
+    method: "PATCH", // Mengubah dari PUT ke PATCH sesuai backend route
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
+}
+
+export async function createMyStore(data) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const accessToken = await getAccessToken();
+  const response = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/stores`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    let message = `API Store gagal (${response.status}).`;
+    try {
+      const errorData = await response.json();
+      if (errorData?.message) message = errorData.message;
+    } catch {}
+    throw new Error(message);
+  }
+  return response.json();
+}
+
+export async function uploadStorePhoto(file) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiBaseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL belum dikonfigurasi.");
+  }
+
+  const accessToken = await getAccessToken();
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/upload/store-photos`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    let message = "Gagal mengupload foto toko.";
+    try {
+      const errorData = await response.json();
+      if (errorData?.message) message = errorData.message;
+    } catch {}
+    throw new Error(message);
+  }
+
+  const result = await response.json();
+  const url = result?.data?.url;
+  if (typeof url !== "string" || !url) {
+    throw new Error("Backend tidak mengembalikan URL foto toko yang valid.");
+  }
+  return url;
 }

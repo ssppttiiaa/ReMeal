@@ -165,3 +165,34 @@ export function closeSellerProduct(productId) {
     },
   );
 }
+
+export async function uploadSellerProductPhoto(file) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiBaseUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL belum dikonfigurasi.");
+  }
+  
+  const accessToken = await getAccessToken();
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/upload/product-photos`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: "application/json",
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    let message = "Gagal mengupload foto.";
+    try {
+      const errorData = await response.json();
+      if (errorData?.message) message = errorData.message;
+    } catch {}
+    throw new Error(message);
+  }
+
+  return response.json();
+}

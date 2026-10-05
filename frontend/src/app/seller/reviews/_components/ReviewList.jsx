@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { sampleReviews } from "../_data/reviews";
+import { useMemo, useState, useEffect } from "react";
+import { getSellerReviews, replyToReview } from "../../../../services/reviews";
 
 const ratingOptions = [5, 4, 3, 2, 1];
 
@@ -33,18 +33,28 @@ function ReviewCard({ review, onReply }) {
   const [isReplying, setIsReplying] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  function submitReply(event) {
+  async function submitReply(event) {
     event.preventDefault();
     const reply = replyText.trim();
     if (!reply) {
       setFeedback("Balasan tidak boleh kosong.");
       return;
     }
-    onReply(review.id, reply);
-    setIsReplying(false);
-    setReplyText("");
-    setFeedback("Balasan berhasil ditambahkan. Perubahan ini hanya tersimpan sementara.");
+    setBusy(true);
+    setFeedback("");
+    try {
+      await replyToReview(review.id, reply);
+      onReply(review.id, reply);
+      setIsReplying(false);
+      setReplyText("");
+      setFeedback("Balasan berhasil disimpan.");
+    } catch (error) {
+      setFeedback(error.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   function cancelReply() {
@@ -109,10 +119,11 @@ function ReviewCard({ review, onReply }) {
               Batal
             </button>
             <button
-              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-4 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-4 text-sm font-semibold text-white transition hover:bg-[#E89B3C] disabled:opacity-50"
+              disabled={busy}
               type="submit"
             >
-              Kirim Balasan
+              {busy ? "Menyimpan..." : "Kirim Balasan"}
             </button>
           </div>
         </form>
@@ -128,10 +139,43 @@ function ReviewCard({ review, onReply }) {
 }
 
 export default function ReviewList() {
-  const [reviews, setReviews] = useState(sampleReviews);
+  const [reviews, setReviews] = useState([]);
   const [search, setSearch] = useState("");
   const [rating, setRating] = useState("Semua Rating");
   const [replyStatus, setReplyStatus] = useState("Semua");
+  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    getSellerReviews()
+      .then((res) => {
+        if (!active) return;
+        setAverageRating(res.average_rating || 0);
+        setTotalReviews(res.total_reviews || 0);
+        const fetchedReviews = (res.data || []).map(r => ({
+          id: r.id,
+          customer: r.consumer_name || "Konsumen",
+          product: `Produk ID: ${r.product_id}`,
+          rating: r.rating,
+          comment: r.comment,
+          date: new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(new Date(r.created_at)),
+          reply: r.seller_reply
+        }));
+        setReviews(fetchedReviews);
+      })
+      .catch((err) => {
+        if (active) setError(err.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
+
   const normalizedSearch = search.trim().toLocaleLowerCase("id-ID");
 
   const filteredReviews = useMemo(
@@ -150,13 +194,8 @@ export default function ReviewList() {
     [normalizedSearch, rating, replyStatus, reviews],
   );
 
-  const totalReviews = reviews.length;
-  const averageRating =
-    totalReviews === 0
-      ? 0
-      : reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
   const repliedCount = reviews.filter((review) => Boolean(review.reply)).length;
-  const pendingCount = totalReviews - repliedCount;
+  const pendingCount = reviews.length - repliedCount;
 
   function handleReply(reviewId, reply) {
     setReviews((currentReviews) =>
@@ -189,6 +228,8 @@ export default function ReviewList() {
           Lihat dan kelola ulasan dari konsumen.
         </p>
       </header>
+
+      {error && <p className="text-sm font-semibold text-red-500">{error}</p>}
 
       <section aria-label="Ringkasan review" className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {summaries.map((summary) => (
@@ -252,7 +293,9 @@ export default function ReviewList() {
           <h2 className="text-sm font-bold text-[#29261F]">Daftar review</h2>
           <span className="text-xs text-[#8B8172]">{filteredReviews.length} review</span>
         </div>
-        {filteredReviews.length === 0 ? (
+        {loading ? (
+          <p className="text-sm">Memuat review...</p>
+        ) : filteredReviews.length === 0 ? (
           <div className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] px-5 py-12 text-center">
             <h3 className="text-sm font-bold text-[#29261F]">Review tidak ditemukan</h3>
             <p className="mt-1.5 text-sm text-[#8B8172]">
@@ -267,10 +310,6 @@ export default function ReviewList() {
           </div>
         )}
       </section>
-
-      <p className="text-center text-[11px] text-[#8B8172]">
-        Data dan balasan review contoh — belum terhubung ke database.
-      </p>
     </div>
   );
 }

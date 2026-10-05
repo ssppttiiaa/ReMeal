@@ -107,7 +107,17 @@ export default function ConsumerShell({ children }) {
             })}
           </nav>
 
-          {!authenticated && <Link className="text-link" href={`/consumer/auth?next=${encodeURIComponent(pathname)}`}>Masuk</Link>}
+          {!authenticated ? (
+            <Link className="text-link" href={`/login?next=${encodeURIComponent(pathname)}`}>Masuk</Link>
+          ) : (
+            <button className="text-link" style={{ color: '#ef4444' }} onClick={async () => {
+              const { logout } = await import('../../services/auth');
+              const { clearSession } = await import('../../lib/consumer-api');
+              try { await logout(); } catch(e) {}
+              clearSession();
+              window.location.href = '/';
+            }}>Keluar</button>
+          )}
 
           {/* Keranjang */}
           <Link
@@ -180,7 +190,7 @@ export default function ConsumerShell({ children }) {
         <div className="footer-column">
           <strong>Akun & bantuan</strong>
           <Link href="/consumer/profile">Profil saya</Link>
-          <Link href="/consumer/auth">Masuk atau daftar</Link>
+          <Link href="/login">Masuk atau daftar</Link>
         </div>
         <div className="footer-note">
           <span>© 2026 ReMeal</span>

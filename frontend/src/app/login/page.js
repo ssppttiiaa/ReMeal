@@ -4,6 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login } from "../../services/auth";
+import AuthShell, { AuthAlert, AuthField, authButtonClass, authInputClass } from "../_components/AuthShell";
+
+function getSafeNext() {
+  if (typeof window === "undefined") return null;
+  const next = new URLSearchParams(window.location.search).get("next");
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,76 +26,100 @@ export default function LoginPage() {
 
     try {
       const result = await login(identifier.trim(), password);
-      router.replace(result.destination);
+      const next = getSafeNext();
+      // `next` hanya dipakai untuk consumer (halaman consumer yang meminta login).
+      const destination =
+        result.user.role === "consumer" && next?.startsWith("/consumer") ? next : result.destination;
+      router.replace(destination);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Login gagal. Silakan coba lagi.",
-      );
+      setErrorMessage(error instanceof Error ? error.message : "Login gagal. Silakan coba lagi.");
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[#f4f5ef] px-4 py-10 text-[#202a1e]">
-      <section className="w-full max-w-md rounded-2xl border border-[#202a1e]/[0.08] bg-white p-7 shadow-sm sm:p-9">
-        <div className="mb-8">
-          <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#202a1e] text-sm font-black text-[#e2f27b]">
-            R.
-          </span>
-          <h1 className="mt-6 text-2xl font-bold tracking-tight">Masuk ke ReMeal</h1>
-          <p className="mt-2 text-sm leading-6 text-[#727a6d]">
-            Gunakan akun Seller atau Admin untuk melanjutkan. Login Consumer belum tersedia.
+    <AuthShell
+      badge="Selamat datang kembali 👋"
+      title="Satu pintu untuk semua akun ReMeal."
+      subtitle="Pembeli, mitra toko, maupun admin — cukup masuk di sini. Kami akan mengarahkanmu ke halaman yang sesuai."
+      aside={
+        <div className="grid max-w-md grid-cols-3 gap-3 text-center text-xs font-black">
+          {[
+            ["🛍️", "Pembeli", "#dcebd3"],
+            ["🏪", "Mitra Toko", "#ffe4a9"],
+            ["🛡️", "Admin", "#f7d4c9"],
+          ].map(([icon, label, bg]) => (
+            <div
+              key={label}
+              className="rounded-2xl border-2 border-[#211f1c] p-4 shadow-[3px_3px_0px_0px_#211f1c]"
+              style={{ backgroundColor: bg }}
+            >
+              <div className="text-2xl">{icon}</div>
+              <div className="mt-1">{label}</div>
+            </div>
+          ))}
+        </div>
+      }
+      footer={
+        <div className="space-y-2">
+          <p>
+            Belum punya akun?{" "}
+            <Link className="font-black text-[#211f1c] underline underline-offset-4" href="/register" id="login-register-link">
+              Daftar sebagai pembeli
+            </Link>
+          </p>
+          <p>
+            Punya usaha kuliner?{" "}
+            <Link className="font-black text-[#211f1c] underline underline-offset-4" href="/register/seller" id="login-seller-register-link">
+              Gabung jadi mitra
+            </Link>
           </p>
         </div>
+      }
+    >
+      <h1 className="text-3xl font-black tracking-tight">Masuk</h1>
+      <p className="mt-2 text-sm font-medium text-[#716e68]">Gunakan email atau nomor HP yang terdaftar.</p>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold">Email atau identifier</span>
-            <input
-              autoComplete="username"
-              className="w-full rounded-lg border border-[#202a1e]/15 bg-white px-3.5 py-3 text-sm outline-none transition focus:border-[#71833d] focus:ring-2 focus:ring-[#71833d]/15"
-              onChange={(event) => setIdentifier(event.target.value)}
-              required
-              type="text"
-              value={identifier}
-            />
-          </label>
+      <form className="mt-7 space-y-5" onSubmit={handleSubmit}>
+        <AuthField label="Email atau nomor HP">
+          <input
+            autoComplete="username"
+            className={authInputClass}
+            id="login-identifier"
+            onChange={(event) => setIdentifier(event.target.value)}
+            placeholder="nama@email.com"
+            required
+            type="text"
+            value={identifier}
+          />
+        </AuthField>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-semibold">Password</span>
-            <input
-              autoComplete="current-password"
-              className="w-full rounded-lg border border-[#202a1e]/15 bg-white px-3.5 py-3 text-sm outline-none transition focus:border-[#71833d] focus:ring-2 focus:ring-[#71833d]/15"
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              type="password"
-              value={password}
-            />
-          </label>
+        <AuthField label="Kata sandi">
+          <input
+            autoComplete="current-password"
+            className={authInputClass}
+            id="login-password"
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="••••••••"
+            required
+            type="password"
+            value={password}
+          />
+        </AuthField>
 
-          {errorMessage && (
-            <p className="rounded-lg bg-[#fff0ed] px-4 py-3 text-sm text-[#a33e2b]" role="alert">
-              {errorMessage}
-            </p>
-          )}
-
-          <button
-            className="w-full rounded-lg bg-[#202a1e] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#35452f] disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isLoading}
-            type="submit"
-          >
-            {isLoading ? "Memproses..." : "Login"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-[#727a6d]">
-          Belum punya akun?{" "}
-          <Link className="font-semibold text-[#35452f] underline" href="/register">
-            Daftar
+        <div className="text-right">
+          <Link className="text-xs font-bold text-[#211f1c] underline underline-offset-4" href="/consumer/auth?mode=forgot">
+            Lupa kata sandi?
           </Link>
-        </p>
-      </section>
-    </main>
+        </div>
+
+        <AuthAlert>{errorMessage}</AuthAlert>
+
+        <button className={authButtonClass} disabled={isLoading} id="login-submit" type="submit">
+          {isLoading ? "Memproses..." : "Masuk"}
+        </button>
+      </form>
+    </AuthShell>
   );
 }

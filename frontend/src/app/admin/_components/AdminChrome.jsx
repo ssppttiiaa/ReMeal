@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import LogoutButton from "../../_components/LogoutButton";
+import { useEffect, useState } from "react";
+import { supabase } from "../../../lib/supabase";
 
 const navigation = [
   { label: "Dashboard", href: "/admin", icon: "dashboard" },
@@ -96,6 +99,28 @@ export function AdminHeader() {
     navigation.find((item) => item.href !== "/admin" && pathname.startsWith(`${item.href}/`))?.label ??
     "Admin";
 
+  const [profile, setProfile] = useState({ name: "Admin ReMeal", email: "admin@remeal.id", initials: "AR" });
+
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user && active) {
+          const name = session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "Admin";
+          const email = session.user.email || "";
+          setProfile({
+            name,
+            email,
+            initials: name.slice(0, 2).toUpperCase()
+          });
+        }
+      } catch (err) {}
+    }
+    load();
+    return () => { active = false; };
+  }, []);
+
   return (
     <header className="sticky top-0 z-20 border-b border-[#29261F]/[0.08] bg-[#FFF9EF]/95">
       <div className="flex h-[72px] items-center justify-between gap-4 px-4 sm:px-7 xl:px-10">
@@ -121,13 +146,19 @@ export function AdminHeader() {
           <div className="hidden h-8 w-px bg-[#FFF9EF]/10 sm:block" />
           <div className="flex min-w-0 items-center gap-2.5">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#E89B3C] text-xs font-bold text-[#29261F]">
-              AR
+              {profile.initials}
             </span>
             <span className="hidden min-w-0 sm:block">
-              <span className="block truncate text-xs font-semibold text-[#29261F]">Admin ReMeal</span>
-              <span className="mt-0.5 block truncate text-[11px] text-[#8B8172]">admin@remeal.id</span>
+              <span className="block truncate text-xs font-semibold text-[#29261F]">{profile.name}</span>
+              <span className="mt-0.5 block truncate text-[11px] text-[#8B8172]">{profile.email}</span>
             </span>
           </div>
+          <div className="hidden h-8 w-px bg-[#FFF9EF]/10 sm:block" />
+          <LogoutButton 
+            className="panel-header-action relative grid h-10 w-10 place-items-center rounded-full text-red-600 transition hover:bg-red-50 hover:text-red-700" 
+            iconOnly 
+            iconSize={20} 
+          />
         </div>
       </div>
     </header>

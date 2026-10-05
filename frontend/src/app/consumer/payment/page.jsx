@@ -43,6 +43,38 @@ export default function PaymentPage() {
         body: JSON.stringify({ method }),
       });
       setPayment(result);
+
+      if (result?.payment_url?.includes('.example.test')) {
+        const externalId = result.payment_url.split('/').pop();
+        await apiRequest(`/payments/simulate`, {
+          method: 'POST',
+          token,
+          body: JSON.stringify({ external_id: externalId }),
+        });
+      }
+
+      await refreshOrder();
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function simulatePaymentSuccess() {
+    if (!payment?.payment_url?.includes('.example.test')) return;
+    setError('');
+    setLoading(true);
+    try {
+      const token = getAccessToken();
+      if (!token) throw new Error('Silakan masuk untuk melanjutkan.');
+      // Ekstrak external_id dari payment_url mock
+      const externalId = payment.payment_url.split('/').pop();
+      await apiRequest(`/payments/simulate`, {
+        method: 'POST',
+        token,
+        body: JSON.stringify({ external_id: externalId }),
+      });
       await refreshOrder();
     } catch (requestError) {
       setError(requestError.message);
@@ -70,7 +102,7 @@ export default function PaymentPage() {
         {order.product_lookup_error && <p className="page-subtitle">Nama produk tidak tersedia: {order.product_lookup_error}</p>}
         <div className="summary-line total"><span>Total</span><span>{formatRupiah(order.total_price)}</span></div>
         {!payment && order.status === 'pending_payment' && <button className="button-secondary full-button" type="button" disabled={loading} onClick={startPayment}>{loading ? 'Menyiapkan pembayaran…' : 'Mulai pembayaran'}</button>}
-        {payment && <div className="payment-result"><p>Status pembayaran: <strong>{payment.status}</strong></p><p>Berlaku sampai: {formatDateTime(payment.expires_at)}</p>{payment.qris_payload && <p className="page-subtitle">Payload QRIS dari backend: <code>{payment.qris_payload}</code></p>}{payment.payment_url && (payment.payment_url.includes('.example.test') ? <p className="page-subtitle">Gateway mock aktif. URL ini bukan halaman pembayaran nyata; konfirmasi harus diterima melalui webhook backend.</p> : <p><a className="text-link" href={payment.payment_url} target="_blank" rel="noreferrer">Buka instruksi pembayaran dari penyedia</a></p>)}</div>}
+        {payment && <div className="payment-result"><p>Status pembayaran: <strong>{payment.status}</strong></p><p>Berlaku sampai: {formatDateTime(payment.expires_at)}</p>{payment.qris_payload && <p className="page-subtitle">Payload QRIS dari backend: <code>{payment.qris_payload}</code></p>}{payment.payment_url && (payment.payment_url.includes('.example.test') ? <><p className="page-subtitle">Gateway mock aktif. URL ini bukan halaman pembayaran nyata.</p><button className="button-secondary full-button" type="button" onClick={simulatePaymentSuccess} disabled={loading} style={{ marginTop: 10 }}>{loading ? 'Mensimulasikan...' : 'Simulasi Pembayaran Berhasil'}</button></> : <p><a className="text-link" href={payment.payment_url} target="_blank" rel="noreferrer">Buka instruksi pembayaran dari penyedia</a></p>)}</div>}
         {order.qr_code && <p className="form-success">Pembayaran berhasil. QR pickup tersedia pada detail pesanan.</p>}
         {payment && !order.qr_code && <button className="button-outline full-button" type="button" onClick={() => refreshOrder().catch(requestError => setError(requestError.message))}>Perbarui status pembayaran</button>}
         <Link className="button-outline full-button" href={`/consumer/orders/${order.id}`}>Lihat detail pesanan</Link>

@@ -9,13 +9,7 @@ import {
   getAllSellerProducts,
   getProductCategories,
 } from "@/services/products";
-import { SELLER_DEV_MODE } from "@/lib/sellerDevMode";
-import {
-  closeMockSellerProduct,
-  deleteMockSellerProduct,
-  getMockProductCategories,
-  getMockSellerProducts,
-} from "../_data/sellerDevStore";
+
 import { formatPrice } from "../_data/products";
 
 const statusStyles = {
@@ -153,15 +147,6 @@ useEffect(() => {
   async function loadProducts() {
     setLoading(true);
     try {
-      if (SELLER_DEV_MODE) {
-        const mockProducts = getMockSellerProducts();
-        if (active) {
-          setApiProducts(mockProducts);
-          setLoadError("");
-        }
-        return;
-      }
-
       const products = await getAllSellerProducts();
       if (active) {
         setApiProducts(products);
@@ -184,14 +169,6 @@ useEffect(() => {
 
   async function loadCategories() {
     try {
-      if (SELLER_DEV_MODE) {
-        if (active) {
-          setCategories(getMockProductCategories());
-          setCategoryError("");
-        }
-        return;
-      }
-
       const categoriesResponse = await getProductCategories();
       if (!Array.isArray(categoriesResponse)) {
         throw new Error("Format daftar kategori tidak valid.");
@@ -246,11 +223,7 @@ useEffect(() => {
 
     setDeleteError("");
     try {
-      if (SELLER_DEV_MODE) {
-        deleteMockSellerProduct(productId);
-      } else {
-        await deleteSellerProduct(productId);
-      }
+      await deleteSellerProduct(productId);
       setApiProducts((currentProducts) =>
         currentProducts.filter((item) => item.id !== productId),
       );
@@ -275,9 +248,7 @@ useEffect(() => {
 
     setCloseError("");
     try {
-      const closedProduct = SELLER_DEV_MODE
-        ? closeMockSellerProduct(productId)
-        : await closeSellerProduct(productId);
+      const closedProduct = await closeSellerProduct(productId);
       if (closedProduct?.id && closedProduct.status === "closed") {
         setApiProducts((currentProducts) =>
           currentProducts.map((item) =>
@@ -285,17 +256,15 @@ useEffect(() => {
           ),
         );
       }
-      if (!SELLER_DEV_MODE) {
-        try {
-          const refreshedProducts = await getAllSellerProducts();
-          setApiProducts(refreshedProducts);
-        } catch (error) {
-          setCloseError(
-            error instanceof Error
-              ? `Penjualan berhasil ditutup, tetapi daftar gagal diperbarui: ${error.message}`
-              : "Penjualan berhasil ditutup, tetapi daftar gagal diperbarui.",
-          );
-        }
+      try {
+        const refreshedProducts = await getAllSellerProducts();
+        setApiProducts(refreshedProducts);
+      } catch (error) {
+        setCloseError(
+          error instanceof Error
+            ? `Penjualan berhasil ditutup, tetapi daftar gagal diperbarui: ${error.message}`
+            : "Penjualan berhasil ditutup, tetapi daftar gagal diperbarui.",
+        );
       }
     } catch (error) {
       setCloseError(

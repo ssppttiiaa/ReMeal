@@ -2,25 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-
-const initialStore = {
-  name: "Roti & Rasa",
-  description:
-    "UMKM kuliner yang menyediakan roti, pastry, dan makanan ringan dengan harga terjangkau.",
-  address: "Jl. Contoh No. 10, Yogyakarta",
-  phone: "081234567890",
-  logo: "",
-  isOpen: true,
-  hours: [
-    { day: "Senin", enabled: true, open: "08:00", close: "20:00" },
-    { day: "Selasa", enabled: true, open: "08:00", close: "20:00" },
-    { day: "Rabu", enabled: true, open: "08:00", close: "20:00" },
-    { day: "Kamis", enabled: true, open: "08:00", close: "20:00" },
-    { day: "Jumat", enabled: true, open: "08:00", close: "20:00" },
-    { day: "Sabtu", enabled: true, open: "08:00", close: "21:00" },
-    { day: "Minggu", enabled: true, open: "08:00", close: "18:00" },
-  ],
-};
+import { createMyStore, getMyStore, updateMyStore, uploadStorePhoto } from "../../../services/stores";
 
 const fieldClassName =
   "mt-2 h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none transition placeholder:text-[#8B8172] focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]";
@@ -106,8 +88,8 @@ function StoreProfile({ store, onEdit }) {
             <dd className="mt-1 break-words text-sm font-semibold text-[#29261F]">{store.name}</dd>
           </div>
           <div className="min-w-0 sm:col-span-2">
-            <dt className="text-xs text-[#8B8172]">Deskripsi</dt>
-            <dd className="mt-1 break-words text-sm leading-6 text-[#29261F]">{store.description}</dd>
+            <dt className="text-xs text-[#8B8172]">Tipe Bisnis</dt>
+            <dd className="mt-1 break-words text-sm leading-6 text-[#29261F]">{store.business_type}</dd>
           </div>
           <div className="min-w-0">
             <dt className="text-xs text-[#8B8172]">Alamat</dt>
@@ -170,7 +152,7 @@ function OperatingHours({ hours }) {
   );
 }
 
-function StoreEditor({ store, onCancel, onSave }) {
+function StoreEditor({ store, onCancel, onSave, isCreating = false }) {
   const committedPreview = useRef(false);
   const [draft, setDraft] = useState(() => ({
     ...store,
@@ -178,10 +160,12 @@ function StoreEditor({ store, onCancel, onSave }) {
   }));
   const [preview, setPreview] = useState(store.logo);
   const [photoError, setPhotoError] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
   const [errors, setErrors] = useState({});
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!preview.startsWith("blob:")) return undefined;
+    if (!preview || !preview.startsWith("blob:")) return undefined;
     return () => {
       if (preview !== store.logo && !committedPreview.current) {
         URL.revokeObjectURL(preview);
@@ -220,12 +204,13 @@ function StoreEditor({ store, onCancel, onSave }) {
     }
 
     setPhotoError("");
+    setPhotoFile(file);
     const nextPreview = URL.createObjectURL(file);
     setDraft((current) => ({ ...current, logo: nextPreview }));
     setPreview(nextPreview);
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const nextErrors = {};
 
@@ -242,15 +227,51 @@ function StoreEditor({ store, onCancel, onSave }) {
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length === 0) {
-      committedPreview.current = true;
-      onSave(draft);
+      setBusy(true);
+      try {
+        const payload = {
+          name: draft.name,
+          business_type: draft.business_type || "umkm",
+          address: draft.address,
+          latitude: draft.latitude || 0,
+          longitude: draft.longitude || 0,
+          contact_phone: draft.phone,
+          opening_hours: draft.hours.filter(h => h.enabled).map(h => ({
+            day: h.rawDay,
+            open: h.open,
+            close: h.close
+          }))
+        };
+        let logoUrl = draft.logo && !draft.logo.startsWith("blob:") ? draft.logo : "";
+        if (photoFile) {
+          logoUrl = await uploadStorePhoto(photoFile);
+        }
+        if (logoUrl) {
+          payload.photo_url = logoUrl;
+        }
+        const savedDraft = { ...draft, logo: logoUrl || draft.logo };
+        if (isCreating) {
+          const res = await createMyStore(payload);
+          committedPreview.current = true;
+          onSave({ ...savedDraft, id: res.id || res.data?.id });
+        } else {
+          await updateMyStore(payload);
+          committedPreview.current = true;
+          onSave(savedDraft);
+        }
+      } catch (err) {
+        setErrors({ form: err.message });
+      } finally {
+        setBusy(false);
+      }
     }
   }
 
   return (
     <form className="mx-auto max-w-4xl space-y-5" noValidate onSubmit={handleSubmit}>
       <section className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-6">
-        <h2 className="text-base font-bold text-[#29261F]">Edit Profil Toko</h2>
+        <h2 className="text-base font-bold text-[#29261F]">{isCreating ? "Buat Toko Baru" : "Edit Profil Toko"}</h2>
+        {errors.form && <p className="mt-2 text-sm text-red-500">{errors.form}</p>}
         <div className="mt-5 grid gap-5 sm:grid-cols-[150px_minmax(0,1fr)]">
           <div>
             <p className="text-xs font-semibold text-[#29261F]">Foto/Logo Toko</p>
@@ -282,12 +303,19 @@ function StoreEditor({ store, onCancel, onSave }) {
               {errors.name ? <span className="mt-1 block text-xs text-[#29261F]">{errors.name}</span> : null}
             </label>
             <label className="block sm:col-span-2">
-              <span className="text-xs font-semibold text-[#29261F]">Deskripsi</span>
-              <textarea
-                className="mt-2 min-h-24 w-full resize-y rounded-lg border border-[#29261F]/10 bg-white px-3 py-2.5 text-sm leading-6 text-[#29261F] outline-none transition focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
-                onChange={(event) => updateField("description", event.target.value)}
-                value={draft.description}
-              />
+              <span className="text-xs font-semibold text-[#29261F]">Tipe Bisnis</span>
+              <select
+                className={fieldClassName}
+                onChange={(event) => updateField("business_type", event.target.value)}
+                value={draft.business_type}
+              >
+                <option value="umkm">UMKM</option>
+                <option value="cafe">Cafe</option>
+                <option value="warung_makan">Warung Makan</option>
+                <option value="supermarket">Supermarket</option>
+                <option value="bakery">Bakery</option>
+                <option value="other">Lainnya</option>
+              </select>
             </label>
             <label className="block sm:col-span-2">
               <span className="text-xs font-semibold text-[#29261F]">Alamat *</span>
@@ -366,38 +394,111 @@ function StoreEditor({ store, onCancel, onSave }) {
       </section>
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        {!isCreating && (
+          <button
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#29261F]/10 px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7]"
+            disabled={busy}
+            onClick={onCancel}
+            type="button"
+          >
+            Batal
+          </button>
+        )}
         <button
-          className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#29261F]/10 px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7]"
-          onClick={onCancel}
-          type="button"
-        >
-          Batal
-        </button>
-        <button
-          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C] disabled:opacity-50"
+          disabled={busy}
           type="submit"
         >
-          Simpan Perubahan
+          {busy ? "Menyimpan..." : "Simpan Perubahan"}
         </button>
       </div>
     </form>
   );
 }
 
+const dayNames = {
+  mon: "Senin", tue: "Selasa", wed: "Rabu", thu: "Kamis", fri: "Jumat", sat: "Sabtu", sun: "Minggu"
+};
+
 export default function SellerStorePage() {
-  const [store, setStore] = useState(initialStore);
+  const [store, setStore] = useState(null);
   const [editing, setEditing] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!store.logo.startsWith("blob:")) return undefined;
+    let active = true;
+    getMyStore()
+      .then((res) => {
+        if (!active) return;
+        const mappedHours = Object.keys(dayNames).map(rawDay => {
+          const found = (res.opening_hours || []).find(h => h.day === rawDay);
+          return {
+            rawDay,
+            day: dayNames[rawDay],
+            enabled: !!found,
+            open: found ? found.open : "08:00",
+            close: found ? found.close : "20:00"
+          };
+        });
+
+        setStore({
+          id: res.id,
+          name: res.name || "",
+          business_type: res.business_type || "umkm",
+          address: res.address || "",
+          phone: res.contact_phone || "",
+          logo: res.photo_url || "",
+          latitude: res.latitude || 0,
+          longitude: res.longitude || 0,
+          isOpen: true,
+          hours: mappedHours
+        });
+      })
+      .catch((err) => {
+        if (!active) return;
+        if (err.message.toLowerCase().includes("tidak ditemukan") || err.message.toLowerCase().includes("not found") || err.message.toLowerCase().includes("belum memiliki toko") || err.status === 403) {
+          // Toko belum dibuat, setup initial state kosong untuk pembuatan
+          const initialHours = Object.keys(dayNames).map(rawDay => ({
+            rawDay,
+            day: dayNames[rawDay],
+            enabled: true,
+            open: "08:00",
+            close: "20:00"
+          }));
+          setStore({
+            id: "",
+            name: "",
+            business_type: "umkm",
+            address: "",
+            phone: "",
+            logo: "",
+            latitude: 0,
+            longitude: 0,
+            isOpen: true,
+            hours: initialHours
+          });
+          setEditing(true);
+        } else {
+          setError(err.message);
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!store || !store.logo || !store.logo.startsWith("blob:")) return undefined;
     return () => URL.revokeObjectURL(store.logo);
-  }, [store.logo]);
+  }, [store ? store.logo : null]);
 
   function handleSave(updatedStore) {
     setStore(updatedStore);
     setEditing(false);
-    setFeedback("Perubahan toko berhasil disimpan sementara di halaman ini; belum dikirim ke server.");
+    setFeedback("Perubahan toko berhasil disimpan!");
   }
 
   function handleCancel() {
@@ -431,19 +532,20 @@ export default function SellerStorePage() {
           {feedback}
         </p>
       ) : null}
-
-      {!editing ? (
+      
+      {error && <p className="text-red-500 font-semibold">{error}</p>}
+      
+      {loading ? (
+        <p>Memuat profil toko...</p>
+      ) : store && !editing ? (
         <>
           <StoreStatus isOpen={store.isOpen} onChange={toggleStoreStatus} />
           <StoreProfile onEdit={() => { setFeedback(""); setEditing(true); }} store={store} />
           <OperatingHours hours={store.hours} />
-          <p className="text-center text-[11px] text-[#8B8172]">
-            Data toko contoh — perubahan belum tersimpan ke database.
-          </p>
         </>
-      ) : (
-        <StoreEditor onCancel={handleCancel} onSave={handleSave} store={store} />
-      )}
+      ) : store && editing ? (
+        <StoreEditor isCreating={!store.id} onCancel={handleCancel} onSave={handleSave} store={store} />
+      ) : null}
     </div>
   );
 }

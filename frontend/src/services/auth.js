@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { saveSession as saveConsumerSession } from "../lib/consumer-api";
 
 export const PENDING_OTP_STORAGE_KEY = "remeal:pending-otp-registration";
 
@@ -24,6 +25,7 @@ async function getErrorMessage(response, fallback) {
 function getDestination(role) {
   if (role === "seller") return "/seller";
   if (role === "super_admin") return "/admin";
+  if (role === "consumer") return "/consumer";
   return null;
 }
 
@@ -150,12 +152,6 @@ export async function verifyOtp({ otp }) {
     throw new Error("Data pendaftaran tidak ditemukan. Silakan daftar kembali.");
   }
 
-  if (pending.role === "consumer") {
-    throw new Error(
-      "Verifikasi dan login Consumer belum tersedia karena halaman Consumer belum ada. Gunakan akun Seller atau coba lagi setelah halaman Consumer tersedia.",
-    );
-  }
-
   const result = await postAuthRequest(
     "/auth/verify-otp",
     { identifier: pending.identifier, otp: otp.trim() },
@@ -167,6 +163,7 @@ export async function verifyOtp({ otp }) {
   }
 
   const user = await setAndVerifySession(result);
+  if (user.role === "consumer") saveConsumerSession(result);
   window.sessionStorage.removeItem(PENDING_OTP_STORAGE_KEY);
   return { user, destination: getDestination(user.role) };
 }
@@ -185,15 +182,11 @@ export async function login(identifier, password) {
 
   const destination = getDestination(user.role);
   if (!destination) {
-    if (user.role === "consumer") {
-      throw new Error(
-        "Login Consumer belum tersedia karena halaman Consumer belum ada. Gunakan akun Seller atau coba lagi setelah halaman Consumer tersedia.",
-      );
-    }
     throw new Error("Role akun ini tidak diizinkan masuk ke panel yang tersedia.");
   }
 
   await setAndVerifySession(result);
+  if (user.role === "consumer") saveConsumerSession(result);
   return { user, destination };
 }
 

@@ -41,7 +41,7 @@ export default function OrdersPage() {
   return <>
     <span className="eyebrow">Semua aktivitasmu</span><h1 className="page-title">Pesanan</h1><p className="page-subtitle">Pantau pesanan dan status pickup.</p>
     <div className="filters-row"><button type="button" className={`filter-chip ${filter === 'all' ? 'selected' : ''}`} onClick={() => setFilter('all')}>Semua</button><button type="button" className={`filter-chip ${filter === 'active' ? 'selected' : ''}`} onClick={() => setFilter('active')}>Berlangsung</button><button type="button" className={`filter-chip ${filter === 'completed' ? 'selected' : ''}`} onClick={() => setFilter('completed')}>Selesai / tutup</button></div>
-    {error && <p className="form-error" role="alert">{error} <Link href="/consumer/auth?next=%2Fconsumer%2Forders" className="text-link">Masuk</Link></p>}
+    {error && <p className="form-error" role="alert">{error} <Link href="/login?next=%2Fconsumer%2Forders" className="text-link">Masuk</Link></p>}
     {loading ? <p className="page-subtitle">Memuat pesanan…</p> : visible.map(order => <article className="order-card" key={order.id}>
       <div><span className="order-id">{order.order_code || order.id} · {formatDateTime(order.created_at)}</span><h3>{order.product?.store?.name || order.product?.store_name || 'Pesanan'}</h3><p>{order.product?.name || 'Rincian produk'} · {order.quantity} item</p>{order.product_lookup_error && <small className="form-error">Rincian produk tidak tersedia: {order.product_lookup_error}</small>}</div>
       <span className={`status ${order.status === 'pending_payment' ? 'pending' : ''}`}>{statusLabel(order.status)}</span>

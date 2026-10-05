@@ -56,16 +56,17 @@ export default function ProfilePage() {
       if (avatarFile) {
         setNotice('Mengunggah foto profil…');
         const formData = new FormData();
-        formData.append('avatar', avatarFile);
+        formData.append('file', avatarFile);
         const uploadResult = await apiRequest('/upload/avatars', {
           method: 'POST',
           token: getAccessToken(),
           body: formData,
         });
-        if (typeof uploadResult?.avatar_url !== 'string' || !uploadResult.avatar_url) {
+        const uploadedUrl = uploadResult?.data?.url;
+        if (typeof uploadedUrl !== 'string' || !uploadedUrl) {
           throw new Error('Backend tidak mengembalikan URL foto profil yang valid.');
         }
-        nextAvatarUrl = uploadResult.avatar_url;
+        nextAvatarUrl = uploadedUrl;
       }
 
       const result = await apiRequest('/me', {
@@ -97,8 +98,8 @@ export default function ProfilePage() {
       setError('Pilih file gambar untuk foto profil.');
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Ukuran foto maksimal 10 MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Ukuran foto maksimal 5 MB.');
       return;
     }
 
@@ -165,7 +166,7 @@ export default function ProfilePage() {
 
   return <>
     <span className="eyebrow">Akun ReMeal kamu</span><h1 className="page-title">Profil</h1>
-    {error && <p className="form-error" role="alert">{error} {needsLogin && <Link href={`/consumer/auth?next=${encodeURIComponent('/consumer/profile')}`} className="text-link">Masuk</Link>}</p>}
+    {error && <p className="form-error" role="alert">{error} {needsLogin && <Link href={`/login?next=${encodeURIComponent('/consumer/profile')}`} className="text-link">Masuk</Link>}</p>}
     {notice && <p className="form-success" role="status">{notice}</p>}
     {!profile ? error ? null : <p className="page-subtitle">Memuat profil…</p> : <>
       <section className="profile-head">

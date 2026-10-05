@@ -20,11 +20,19 @@ export default function ConsumerAuthPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token') || params.get('token_hash');
+    const requestedMode = params.get('mode');
     if (token) {
       setResetToken(token);
       setMode('reset');
+    } else if (requestedMode === 'forgot') {
+      setMode('forgot');
+    } else if (requestedMode === 'register') {
+      router.replace('/register');
+    } else {
+      const next = params.get('next');
+      router.replace(next ? `/login?next=${encodeURIComponent(next)}` : '/login');
     }
-  }, []);
+  }, [router]);
 
   async function submit(event) {
     event.preventDefault();
@@ -99,15 +107,8 @@ export default function ConsumerAuthPage() {
           {loading ? 'Memproses…' : ({ register: 'Daftar', verify: 'Verifikasi OTP', forgot: 'Kirim instruksi', reset: 'Simpan kata sandi' })[mode] || 'Masuk'}
         </button>
       </form>
-      {mode === 'login' && <p className="auth-switch">Lupa kata sandi? <button type="button" className="text-link" onClick={() => { setMode('forgot'); setError(''); setMessage(''); }}>Pulihkan akun</button></p>}
-      {mode !== 'verify' && mode !== 'reset' && mode !== 'forgot' && <p className="auth-switch">
-        {mode === 'login' ? 'Belum punya akun? ' : 'Sudah punya akun? '}
-        <button type="button" className="text-link" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); setMessage(''); }}>
-          {mode === 'login' ? 'Daftar sekarang' : 'Masuk'}
-        </button>
-      </p>}
-      {(mode === 'forgot' || mode === 'reset') && <p className="auth-switch"><button type="button" className="text-link" onClick={() => { setMode('login'); setError(''); setMessage(''); }}>Kembali ke login</button></p>}
-      <Link href="/consumer" className="text-link">Kembali ke beranda</Link>
+      {(mode === 'forgot' || mode === 'reset') && <p className="auth-switch"><Link href="/login" className="text-link">Kembali ke login</Link></p>}
+      <Link href="/" className="text-link">Kembali ke beranda</Link>
     </section>
   );
 }
