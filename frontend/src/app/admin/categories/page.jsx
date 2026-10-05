@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ADMIN_DEV_MODE } from "../../../lib/adminDevMode";
+import { AdminCategoriesApi } from "../_components/AdminApiViews";
 
 const initialCategories = [
   { id: "cat-001", name: "Makanan Berat", description: "Nasi, rice bowl, dan makanan utama", products: 31, status: "Aktif" },
@@ -19,7 +21,7 @@ function CategoryStatusBadge({ status }) {
   return (
     <span
       className={`inline-flex w-fit whitespace-nowrap rounded-full px-2.5 py-1.5 text-[11px] font-semibold ${
-        status === "Aktif" ? "bg-[#e9eedf] text-[#637844]" : "bg-[#f5dfd8] text-[#a34d3e]"
+        status === "Aktif" ? "bg-[#F4C542] text-[#29261F]" : "bg-[#F8E7A8] text-[#29261F]"
       }`}
     >
       {status}
@@ -50,35 +52,35 @@ function CategoryFormDialog({ category, onClose, onSave }) {
   }
 
   const fieldClassName =
-    "mt-2 h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white px-3 text-sm text-[#30392c] outline-none transition placeholder:text-[#a0a497] focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]";
+    "mt-2 h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none transition placeholder:text-[#8B8172] focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]";
 
   return (
     <div
       aria-labelledby="category-form-title"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#202a1e]/45 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#FFF9EF]/45 p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
       role="dialog"
     >
       <form
-        className="my-auto w-full max-w-lg rounded-xl bg-[#fffefa] p-5 shadow-xl sm:p-6"
+        className="my-auto w-full max-w-lg rounded-xl bg-[#FFF9EF] p-5 shadow-xl sm:p-6"
         noValidate
         onSubmit={submit}
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-[#30392c]" id="category-form-title">
+            <h2 className="text-lg font-bold text-[#29261F]" id="category-form-title">
               {category ? "Edit Kategori" : "Tambah Kategori"}
             </h2>
-            <p className="mt-1 text-xs leading-5 text-[#858c7d]">
+            <p className="mt-1 text-xs leading-5 text-[#8B8172]">
               Data kategori ini hanya disimpan sementara di halaman.
             </p>
           </div>
           <button
             aria-label="Tutup form kategori"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#727a6d] transition hover:bg-[#f4f5ef]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#8B8172] transition hover:bg-[#F7F1E7]"
             onClick={onClose}
             type="button"
           >
@@ -88,8 +90,8 @@ function CategoryFormDialog({ category, onClose, onSave }) {
 
         <div className="mt-5 space-y-4">
           <label className="block">
-            <span className="text-xs font-semibold text-[#4d5548]">
-              Nama Kategori <span className="text-[#a34d3e]">*</span>
+            <span className="text-xs font-semibold text-[#29261F]">
+              Nama Kategori <span className="text-[#29261F]">*</span>
             </span>
             <input
               aria-describedby={errors.name ? "category-name-error" : undefined}
@@ -99,28 +101,28 @@ function CategoryFormDialog({ category, onClose, onSave }) {
               placeholder="Contoh: Makanan Berat"
               value={name}
             />
-            {errors.name ? <span className="mt-1 block text-xs text-[#a34d3e]" id="category-name-error">{errors.name}</span> : null}
+            {errors.name ? <span className="mt-1 block text-xs text-[#29261F]" id="category-name-error">{errors.name}</span> : null}
           </label>
 
           <label className="block">
-            <span className="text-xs font-semibold text-[#4d5548]">
-              Deskripsi <span className="text-[#a34d3e]">*</span>
+            <span className="text-xs font-semibold text-[#29261F]">
+              Deskripsi <span className="text-[#29261F]">*</span>
             </span>
             <textarea
               aria-describedby={errors.description ? "category-description-error" : undefined}
               aria-invalid={Boolean(errors.description)}
-              className="mt-2 min-h-24 w-full resize-y rounded-lg border border-[#202a1e]/10 bg-white px-3 py-2.5 text-sm text-[#30392c] outline-none transition placeholder:text-[#a0a497] focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+              className="mt-2 min-h-24 w-full resize-y rounded-lg border border-[#29261F]/10 bg-white px-3 py-2.5 text-sm text-[#29261F] outline-none transition placeholder:text-[#8B8172] focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Jelaskan jenis produk dalam kategori ini"
               value={description}
             />
             {errors.description ? (
-              <span className="mt-1 block text-xs text-[#a34d3e]" id="category-description-error">{errors.description}</span>
+              <span className="mt-1 block text-xs text-[#29261F]" id="category-description-error">{errors.description}</span>
             ) : null}
           </label>
 
           <label className="block">
-            <span className="text-xs font-semibold text-[#4d5548]">Status</span>
+            <span className="text-xs font-semibold text-[#29261F]">Status</span>
             <select className={fieldClassName} onChange={(event) => setStatus(event.target.value)} value={status}>
               <option>Aktif</option>
               <option>Nonaktif</option>
@@ -130,14 +132,14 @@ function CategoryFormDialog({ category, onClose, onSave }) {
 
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#202a1e]/10 px-5 text-sm font-semibold text-[#596745] transition hover:bg-[#f4f5ef]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#29261F]/10 px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7]"
             onClick={onClose}
             type="button"
           >
             Batal
           </button>
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#202a1e] px-5 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
             type="submit"
           >
             Simpan
@@ -156,22 +158,22 @@ function StatusConfirmationDialog({ category, onCancel, onConfirm }) {
     <div
       aria-labelledby="category-status-title"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#202a1e]/45 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#FFF9EF]/45 p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onCancel();
       }}
       role="alertdialog"
     >
-      <section className="w-full max-w-md rounded-xl bg-[#fffefa] p-5 shadow-xl sm:p-6">
-        <h2 className="text-base font-bold text-[#30392c]" id="category-status-title">
+      <section className="w-full max-w-md rounded-xl bg-[#FFF9EF] p-5 shadow-xl sm:p-6">
+        <h2 className="text-base font-bold text-[#29261F]" id="category-status-title">
           {action} kategori?
         </h2>
-        <p className="mt-2 break-words text-sm leading-6 text-[#727a6d]">
+        <p className="mt-2 break-words text-sm leading-6 text-[#8B8172]">
           {action} kategori {category.name}?
         </p>
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#202a1e]/10 px-5 text-sm font-semibold text-[#596745] transition hover:bg-[#f4f5ef]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#29261F]/10 px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7]"
             onClick={onCancel}
             type="button"
           >
@@ -179,7 +181,7 @@ function StatusConfirmationDialog({ category, onCancel, onConfirm }) {
           </button>
           <button
             className={`inline-flex min-h-10 items-center justify-center rounded-lg px-5 text-sm font-semibold text-white transition ${
-              activate ? "bg-[#637844] hover:bg-[#526638]" : "bg-[#a34d3e] hover:bg-[#8d4033]"
+              activate ? "bg-[#F4C542] hover:bg-[#E89B3C]" : "bg-[#FFF9EF] hover:bg-[#FFF9EF]"
             }`}
             onClick={onConfirm}
             type="button"
@@ -198,7 +200,7 @@ function CategoryActions({ category, onEdit, onToggle }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <button
-        className="inline-flex min-h-9 items-center justify-center rounded-lg px-3 text-xs font-semibold text-[#637844] transition hover:bg-[#edf1e4]"
+        className="inline-flex min-h-9 items-center justify-center rounded-lg px-3 text-xs font-semibold text-[#29261F] transition hover:bg-[#F4C542]"
         onClick={() => onEdit(category)}
         type="button"
       >
@@ -207,8 +209,8 @@ function CategoryActions({ category, onEdit, onToggle }) {
       <button
         className={`inline-flex min-h-9 items-center justify-center rounded-lg px-3 text-xs font-semibold transition ${
           category.status === "Aktif"
-            ? "text-[#a34d3e] hover:bg-[#f8e9e5]"
-            : "text-[#536738] hover:bg-[#edf1e4]"
+            ? "text-[#29261F] hover:bg-[#FFF9EF]"
+            : "text-[#29261F] hover:bg-[#F4C542]"
         }`}
         onClick={() => onToggle(category)}
         type="button"
@@ -221,16 +223,16 @@ function CategoryActions({ category, onEdit, onToggle }) {
 
 function CategoryCard({ category, onEdit, onToggle }) {
   return (
-    <article className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4">
+    <article className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="break-words text-sm font-bold text-[#30392c]">{category.name}</h3>
-          <p className="mt-1 break-words text-xs leading-5 text-[#727a6d]">{category.description}</p>
+          <h3 className="break-words text-sm font-bold text-[#29261F]">{category.name}</h3>
+          <p className="mt-1 break-words text-xs leading-5 text-[#8B8172]">{category.description}</p>
         </div>
         <CategoryStatusBadge status={category.status} />
       </div>
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#202a1e]/[0.07] pt-3">
-        <p className="text-xs text-[#858c7d]">{category.products} produk</p>
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#29261F]/[0.07] pt-3">
+        <p className="text-xs text-[#8B8172]">{category.products} produk</p>
         <CategoryActions category={category} onEdit={onEdit} onToggle={onToggle} />
       </div>
     </article>
@@ -243,7 +245,7 @@ function Pagination({ currentPage, totalPages, onChange }) {
   return (
     <nav aria-label="Pagination kategori" className="flex flex-wrap items-center justify-center gap-1.5">
       <button
-        className="min-h-10 rounded-lg border border-[#202a1e]/10 px-3 text-xs font-semibold text-[#596745] transition hover:bg-[#f4f5ef] disabled:cursor-not-allowed disabled:opacity-40"
+        className="min-h-10 rounded-lg border border-[#29261F]/10 px-3 text-xs font-semibold text-[#29261F] transition hover:bg-[#F7F1E7] disabled:cursor-not-allowed disabled:opacity-40"
         disabled={currentPage === 1}
         onClick={() => onChange(currentPage - 1)}
         type="button"
@@ -255,8 +257,8 @@ function Pagination({ currentPage, totalPages, onChange }) {
           aria-current={currentPage === page ? "page" : undefined}
           className={`grid h-10 min-w-10 place-items-center rounded-lg px-3 text-xs font-semibold transition ${
             currentPage === page
-              ? "bg-[#202a1e] text-white"
-              : "border border-[#202a1e]/10 text-[#596745] hover:bg-[#f4f5ef]"
+              ? "bg-[#FFF9EF] text-white"
+              : "border border-[#29261F]/10 text-[#29261F] hover:bg-[#F7F1E7]"
           }`}
           key={page}
           onClick={() => onChange(page)}
@@ -266,7 +268,7 @@ function Pagination({ currentPage, totalPages, onChange }) {
         </button>
       ))}
       <button
-        className="min-h-10 rounded-lg border border-[#202a1e]/10 px-3 text-xs font-semibold text-[#596745] transition hover:bg-[#f4f5ef] disabled:cursor-not-allowed disabled:opacity-40"
+        className="min-h-10 rounded-lg border border-[#29261F]/10 px-3 text-xs font-semibold text-[#29261F] transition hover:bg-[#F7F1E7] disabled:cursor-not-allowed disabled:opacity-40"
         disabled={currentPage === totalPages}
         onClick={() => onChange(currentPage + 1)}
         type="button"
@@ -277,7 +279,7 @@ function Pagination({ currentPage, totalPages, onChange }) {
   );
 }
 
-export default function AdminCategoriesPage() {
+function AdminCategoriesMock() {
   const [categories, setCategories] = useState(initialCategories);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("Semua Status");
@@ -305,9 +307,9 @@ export default function AdminCategoriesPage() {
   const activeCount = categories.filter((category) => category.status === "Aktif").length;
   const inactiveCount = categories.length - activeCount;
   const summaries = [
-    { label: "Total Kategori", value: categories.length, mark: "K", tone: "bg-[#e7edda] text-[#536738]" },
-    { label: "Kategori Aktif", value: activeCount, mark: "A", tone: "bg-[#dce9e7] text-[#3c6861]" },
-    { label: "Kategori Nonaktif", value: inactiveCount, mark: "N", tone: "bg-[#f5dfd8] text-[#a34d3e]" },
+    { label: "Total Kategori", value: categories.length, mark: "K", tone: "bg-[#F4C542] text-[#29261F]" },
+    { label: "Kategori Aktif", value: activeCount, mark: "A", tone: "bg-[#E89B3C] text-[#29261F]" },
+    { label: "Kategori Nonaktif", value: inactiveCount, mark: "N", tone: "bg-[#FFF9EF] text-[#29261F]" },
   ];
 
   function changeFilters(update) {
@@ -327,6 +329,7 @@ export default function AdminCategoriesPage() {
       setFeedback(`Kategori "${category.name}" berhasil ditambahkan.`);
       setCurrentPage(1);
     }
+
     setEditingCategory(null);
   }
 
@@ -345,18 +348,18 @@ export default function AdminCategoriesPage() {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8b927f]">Manajemen platform</p>
-        <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#202a1e] sm:text-[30px]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8B8172]">Manajemen platform</p>
+        <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#29261F] sm:text-[30px]">
           Categories
         </h1>
-        <p className="mt-2 text-sm leading-6 text-[#727a6d]">
+        <p className="mt-2 text-sm leading-6 text-[#8B8172]">
           Kelola kategori produk kuliner yang ditampilkan di ReMeal.
         </p>
       </header>
 
       {feedback ? (
         <div
-          className="flex items-start justify-between gap-3 rounded-lg border border-[#637844]/20 bg-[#e9eedf] px-4 py-3 text-sm text-[#536738]"
+          className="flex items-start justify-between gap-3 rounded-lg border border-[#29261F]/20 bg-[#F4C542] px-4 py-3 text-sm text-[#29261F]"
           role="status"
         >
           <span>{feedback}</span>
@@ -373,31 +376,31 @@ export default function AdminCategoriesPage() {
 
       <section aria-label="Ringkasan kategori" className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {summaries.map((summary) => (
-          <article className="min-w-0 rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4 sm:p-5" key={summary.label}>
+          <article className="min-w-0 rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-5" key={summary.label}>
             <div className="flex items-start justify-between gap-2">
-              <p className="min-h-8 text-xs font-medium leading-4 text-[#727a6d]">{summary.label}</p>
+              <p className="min-h-8 text-xs font-medium leading-4 text-[#8B8172]">{summary.label}</p>
               <span className={`grid h-8 min-w-8 shrink-0 place-items-center rounded-lg px-1.5 text-xs font-bold ${summary.tone}`}>
                 {summary.mark}
               </span>
             </div>
-            <p className="mt-3 break-words text-[23px] font-bold leading-none tracking-[-0.04em] text-[#202a1e] sm:text-[26px]">
+            <p className="mt-3 break-words text-[23px] font-bold leading-none tracking-[-0.04em] text-[#29261F] sm:text-[26px]">
               {summary.value}
             </p>
-            <p className="mt-2.5 text-[10px] leading-4 text-[#8b927f]">data contoh</p>
+            <p className="mt-2.5 text-[10px] leading-4 text-[#8B8172]">data contoh</p>
           </article>
         ))}
       </section>
 
       <section
         aria-label="Cari dan filter kategori"
-        className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4 sm:p-5"
+        className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-5"
       >
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <div className="grid min-w-0 flex-1 gap-3 sm:grid-cols-[minmax(200px,1fr)_190px]">
             <label className="block">
               <span className="sr-only">Cari kategori</span>
               <input
-                className="h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white px-3 text-sm text-[#30392c] outline-none transition placeholder:text-[#a0a497] focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+                className="h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none transition placeholder:text-[#8B8172] focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
                 onChange={(event) => changeFilters(() => setSearch(event.target.value))}
                 placeholder="Cari kategori..."
                 type="search"
@@ -407,7 +410,7 @@ export default function AdminCategoriesPage() {
             <label className="block">
               <span className="sr-only">Filter status kategori</span>
               <select
-                className="h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white px-3 text-sm text-[#4d5548] outline-none focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+                className="h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
                 onChange={(event) => changeFilters(() => setStatus(event.target.value))}
                 value={status}
               >
@@ -418,7 +421,7 @@ export default function AdminCategoriesPage() {
             </label>
           </div>
           <button
-            className="inline-flex min-h-11 w-full shrink-0 items-center justify-center rounded-lg bg-[#202a1e] px-4 text-sm font-semibold text-white transition hover:bg-[#35432f] md:w-auto"
+            className="inline-flex min-h-11 w-full shrink-0 items-center justify-center rounded-lg bg-[#FFF9EF] px-4 text-sm font-semibold text-white transition hover:bg-[#E89B3C] md:w-auto"
             onClick={() => setEditingCategory({})}
             type="button"
           >
@@ -429,8 +432,8 @@ export default function AdminCategoriesPage() {
 
       <section aria-label="Daftar kategori" className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-bold text-[#30392c]">Daftar Kategori</h2>
-          <span className="text-xs text-[#858c7d]">
+          <h2 className="text-sm font-bold text-[#29261F]">Daftar Kategori</h2>
+          <span className="text-xs text-[#8B8172]">
             {filteredCategories.length === 0
               ? "0 kategori"
               : `${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, filteredCategories.length)} dari ${filteredCategories.length} kategori`}
@@ -438,9 +441,9 @@ export default function AdminCategoriesPage() {
         </div>
 
         {filteredCategories.length === 0 ? (
-          <div className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] px-5 py-12 text-center">
-            <h3 className="text-sm font-bold text-[#30392c]">Kategori tidak ditemukan</h3>
-            <p className="mt-1.5 text-sm text-[#858c7d]">
+          <div className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] px-5 py-12 text-center">
+            <h3 className="text-sm font-bold text-[#29261F]">Kategori tidak ditemukan</h3>
+            <p className="mt-1.5 text-sm text-[#8B8172]">
               Coba ubah kata kunci atau filter yang digunakan.
             </p>
           </div>
@@ -457,7 +460,7 @@ export default function AdminCategoriesPage() {
               ))}
             </div>
 
-            <div className="hidden overflow-x-auto rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] lg:block">
+            <div className="hidden overflow-x-auto rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] lg:block">
               <table className="w-full min-w-[900px] table-fixed text-left">
                 <colgroup>
                   <col className="w-[24%]" />
@@ -466,8 +469,8 @@ export default function AdminCategoriesPage() {
                   <col className="w-[12%]" />
                   <col className="w-[13%]" />
                 </colgroup>
-                <thead className="border-b border-[#202a1e]/[0.07] bg-[#f8f9f4]">
-                  <tr className="text-[11px] font-semibold text-[#727a6d]">
+                <thead className="border-b border-[#29261F]/[0.07] bg-[#F7F1E7]">
+                  <tr className="text-[11px] font-semibold text-[#8B8172]">
                     <th className="px-4 py-3.5">Kategori</th>
                     <th className="px-4 py-3.5">Deskripsi</th>
                     <th className="px-4 py-3.5">Jumlah Produk</th>
@@ -475,11 +478,11 @@ export default function AdminCategoriesPage() {
                     <th className="px-4 py-3.5">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#202a1e]/[0.07]">
+                <tbody className="divide-y divide-[#29261f]/[0.07]">
                   {visibleCategories.map((category) => (
-                    <tr className="text-xs text-[#30392c]" key={category.id}>
+                    <tr className="text-xs text-[#29261F]" key={category.id}>
                       <td className="break-words px-4 py-3.5 font-semibold">{category.name}</td>
-                      <td className="break-words px-4 py-3.5 text-[#727a6d]">{category.description}</td>
+                      <td className="break-words px-4 py-3.5 text-[#8B8172]">{category.description}</td>
                       <td className="px-4 py-3.5">{category.products}</td>
                       <td className="px-4 py-3.5"><CategoryStatusBadge status={category.status} /></td>
                       <td className="px-4 py-3.5">
@@ -502,7 +505,7 @@ export default function AdminCategoriesPage() {
         )}
       </section>
 
-      <p className="text-center text-[11px] text-[#9aa092]">
+      <p className="text-center text-[11px] text-[#8B8172]">
         Kategori dan jumlah produk contoh — perubahan hanya tersimpan sementara di halaman.
       </p>
 
@@ -522,4 +525,8 @@ export default function AdminCategoriesPage() {
       ) : null}
     </div>
   );
+}
+
+export default function AdminCategoriesPage() {
+  return ADMIN_DEV_MODE ? <AdminCategoriesMock /> : <AdminCategoriesApi />;
 }

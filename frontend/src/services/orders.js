@@ -1,25 +1,67 @@
+import { supabase } from "../lib/supabase";
+
 const SELLER_ORDERS_PATH = "/seller/orders";
+
+async function getAccessToken() {
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error) {
+    throw new Error(`Gagal mendapatkan session: ${error.message}`);
+  }
+
+  if (!session?.access_token) {
+    throw new Error("Session login tidak ditemukan. Silakan login terlebih dahulu.");
+  }
+
+  return session.access_token;
+}
 
 async function requestSellerOrders(path, options = {}) {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   if (!apiBaseUrl) {
-    throw new Error("NEXT_PUBLIC_API_URL belum dikonfigurasi untuk API Seller Orders.");
+    throw new Error(
+      "NEXT_PUBLIC_API_URL belum dikonfigurasi untuk API Seller Orders."
+    );
   }
 
-  const response = await fetch(`${apiBaseUrl.replace(/\/$/, "")}${path}`, {
-    ...options,
-    headers: {
-      Accept: "application/json",
-      ...options.headers,
-    },
-  });
+  const accessToken = await getAccessToken();
+
+  const response = await fetch(
+    `${apiBaseUrl.replace(/\/$/, "")}${path}`,
+    {
+      ...options,
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        ...options.headers,
+      },
+    }
+  );
 
   if (!response.ok) {
-    throw new Error(`API Seller Orders gagal (${response.status} ${response.statusText}).`);
+    let message = `API Seller Orders gagal (${response.status} ${response.statusText}).`;
+
+    try {
+      const errorData = await response.json();
+
+      if (errorData?.message) {
+        message = errorData.message;
+      }
+    } catch {
+      // gunakan pesan default
+    }
+
+    throw new Error(message);
   }
 
-  if (response.status === 204) return null;
+  if (response.status === 204) {
+    return null;
+  }
+
   return response.json();
 }
 
@@ -28,28 +70,35 @@ export function getSellerOrders() {
 }
 
 export function getSellerOrderById(orderId) {
-  return requestSellerOrders(`${SELLER_ORDERS_PATH}/${encodeURIComponent(orderId)}`);
+  return requestSellerOrders(
+    `${SELLER_ORDERS_PATH}/${encodeURIComponent(orderId)}`
+  );
 }
 
 export function confirmSellerOrder(orderId) {
   return requestSellerOrders(
     `${SELLER_ORDERS_PATH}/${encodeURIComponent(orderId)}/confirm`,
-    { method: "POST" },
+    {
+      method: "POST",
+    }
   );
 }
 
-// These endpoint wrappers are prepared for backend integration; QR Pickup UI currently stays local.
 export function verifySellerOrderQR(qrCode) {
   return requestSellerOrders(`${SELLER_ORDERS_PATH}/verify-qr`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ qrCode }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ qr_code: qrCode }),
   });
 }
 
 export function completeSellerOrder(orderId) {
   return requestSellerOrders(
     `${SELLER_ORDERS_PATH}/${encodeURIComponent(orderId)}/complete`,
-    { method: "POST" },
+    {
+      method: "POST",
+    }
   );
 }

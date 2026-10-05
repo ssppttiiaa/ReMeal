@@ -7,18 +7,18 @@ import {
 } from "../_data/orders";
 
 const statusStyles = {
-  "Menunggu Pembayaran": "bg-[#f8e9d4] text-[#94621f]",
-  Diproses: "bg-[#dce9e7] text-[#3c6861]",
-  "Siap Diambil": "bg-[#e9eedf] text-[#637844]",
-  Selesai: "bg-[#e7edda] text-[#536738]",
-  Dibatalkan: "bg-[#f5dfd8] text-[#a34d3e]",
+  "Menunggu Pembayaran": "bg-[#F8E7A8] text-[#29261F]",
+  Diproses: "bg-[#E89B3C] text-[#29261F]",
+  "Siap Diambil": "bg-[#F4C542] text-[#29261F]",
+  Selesai: "bg-[#F4C542] text-[#29261F]",
+  Dibatalkan: "bg-[#29261F] text-white",
 };
 
 function DetailValue({ label, children }) {
   return (
-    <div className="border-b border-[#202a1e]/[0.07] py-3.5 last:border-0 last:pb-0">
-      <dt className="text-xs text-[#858c7d]">{label}</dt>
-      <dd className="mt-1.5 break-words text-sm font-semibold leading-5 text-[#30392c]">{children}</dd>
+    <div className="border-b border-[#29261F]/[0.07] py-3.5 last:border-0 last:pb-0">
+      <dt className="text-xs text-[#8B8172]">{label}</dt>
+      <dd className="mt-1.5 break-words text-sm font-semibold leading-5 text-[#29261F]">{children}</dd>
     </div>
   );
 }
@@ -33,11 +33,11 @@ function OrderStatusInfo({ status }) {
   };
 
   return (
-    <div className="mt-5 rounded-lg border border-[#202a1e]/[0.07] bg-[#f8f9f4] p-4">
-      <p className="text-sm font-semibold text-[#30392c]">{messages[status]}</p>
+    <div className="mt-5 rounded-lg border border-[#29261F]/[0.07] bg-[#F7F1E7] p-4">
+      <p className="text-sm font-semibold text-[#29261F]">{messages[status]}</p>
       {status === "Diproses" ? (
         <button
-          className="mt-3 min-h-10 cursor-not-allowed rounded-lg bg-[#202a1e]/[0.12] px-4 text-sm font-semibold text-[#727a6d]"
+          className="mt-3 min-h-10 cursor-not-allowed rounded-lg bg-[#FFF9EF]/[0.12] px-4 text-sm font-semibold text-[#8B8172]"
           disabled
           type="button"
         >
@@ -58,7 +58,7 @@ export default async function SellerOrderDetailPage({ params }) {
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <Link
-          className="inline-flex min-h-9 items-center text-sm font-semibold text-[#637844] transition hover:text-[#40532c]"
+          className="inline-flex min-h-9 items-center text-sm font-semibold text-[#29261F] transition hover:text-[#29261F]"
           href="/seller/orders"
         >
           <span aria-hidden="true" className="mr-2">←</span>
@@ -66,8 +66,8 @@ export default async function SellerOrderDetailPage({ params }) {
         </Link>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8b927f]">Detail pesanan</p>
-            <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#202a1e] sm:text-[30px]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8B8172]">Detail pesanan</p>
+            <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#29261F] sm:text-[30px]">
               #{order.id}
             </h1>
           </div>
@@ -77,35 +77,35 @@ export default async function SellerOrderDetailPage({ params }) {
             {order.status}
           </span>
         </div>
-        <p className="mt-2 text-xs text-[#858c7d]">Data contoh — perubahan belum tersimpan ke database.</p>
+        <p className="mt-2 text-xs text-[#8B8172]">Data contoh — perubahan belum tersimpan ke database.</p>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.8fr)]">
-        <section className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-5 sm:p-6">
-          <h2 className="text-base font-bold text-[#30392c]">Informasi produk</h2>
-          <div className="mt-4 divide-y divide-[#202a1e]/[0.07]">
+        <section className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-5 sm:p-6">
+          <h2 className="text-base font-bold text-[#29261F]">Informasi produk</h2>
+          <div className="mt-4 divide-y divide-[#29261f]/[0.07]">
             {order.items.map((item) => (
               <article className="flex flex-wrap items-start justify-between gap-3 py-4 first:pt-0 last:pb-0" key={item.name}>
                 <div className="min-w-0 flex-1">
-                  <h3 className="break-words text-sm font-semibold leading-5 text-[#30392c]">{item.name}</h3>
-                  <p className="mt-1 text-xs text-[#858c7d]">
+                  <h3 className="break-words text-sm font-semibold leading-5 text-[#29261F]">{item.name}</h3>
+                  <p className="mt-1 text-xs text-[#8B8172]">
                     {formatOrderPrice(item.price)} × {item.quantity} item
                   </p>
                 </div>
-                <p className="text-sm font-semibold text-[#30392c]">
+                <p className="text-sm font-semibold text-[#29261F]">
                   {formatOrderPrice(item.price * item.quantity)}
                 </p>
               </article>
             ))}
           </div>
-          <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#202a1e]/[0.08] pt-4">
+          <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#29261F]/[0.08] pt-4">
             <div>
-              <p className="text-xs text-[#858c7d]">Jumlah item</p>
-              <p className="mt-1 text-sm font-semibold text-[#30392c]">{getOrderQuantity(order)} item</p>
+              <p className="text-xs text-[#8B8172]">Jumlah item</p>
+              <p className="mt-1 text-sm font-semibold text-[#29261F]">{getOrderQuantity(order)} item</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-[#858c7d]">Total pembayaran</p>
-              <p className="mt-1 text-lg font-bold tracking-[-0.02em] text-[#202a1e]">
+              <p className="text-xs text-[#8B8172]">Total pembayaran</p>
+              <p className="mt-1 text-lg font-bold tracking-[-0.02em] text-[#29261F]">
                 {formatOrderPrice(order.total)}
               </p>
             </div>
@@ -113,8 +113,8 @@ export default async function SellerOrderDetailPage({ params }) {
         </section>
 
         <aside className="space-y-5">
-          <section className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-5 sm:p-6">
-            <h2 className="text-base font-bold text-[#30392c]">Ringkasan</h2>
+          <section className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-5 sm:p-6">
+            <h2 className="text-base font-bold text-[#29261F]">Ringkasan</h2>
             <dl className="mt-2">
               <DetailValue label="Waktu pemesanan">{order.orderedAt}</DetailValue>
               <DetailValue label="Batas pengambilan">
@@ -124,8 +124,8 @@ export default async function SellerOrderDetailPage({ params }) {
             </dl>
           </section>
 
-          <section className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-5 sm:p-6">
-            <h2 className="text-base font-bold text-[#30392c]">Informasi pembayaran</h2>
+          <section className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-5 sm:p-6">
+            <h2 className="text-base font-bold text-[#29261F]">Informasi pembayaran</h2>
             <dl className="mt-2">
               <DetailValue label="Metode pembayaran">{order.paymentMethod}</DetailValue>
               <DetailValue label="Status pembayaran">{order.paymentStatus}</DetailValue>
@@ -135,8 +135,8 @@ export default async function SellerOrderDetailPage({ params }) {
         </aside>
       </div>
 
-      <section className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-5 sm:p-6">
-        <h2 className="text-base font-bold text-[#30392c]">Aksi pesanan</h2>
+      <section className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-5 sm:p-6">
+        <h2 className="text-base font-bold text-[#29261F]">Aksi pesanan</h2>
         <OrderStatusInfo status={order.status} />
       </section>
     </div>

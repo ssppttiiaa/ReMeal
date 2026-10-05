@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ADMIN_DEV_MODE } from "../../../lib/adminDevMode";
+import { AdminReviewsApi } from "../_components/AdminApiViews";
 
 const initialReviews = [
   {
@@ -221,8 +223,8 @@ function RatingStars({ rating, size = "text-sm" }) {
       aria-label={`Rating ${rating} dari 5`}
       className={`inline-flex whitespace-nowrap leading-none ${size}`}
     >
-      <span className="text-[#d99a42]">{"★".repeat(rating)}</span>
-      <span className="text-[#d9ddd2]">{"★".repeat(5 - rating)}</span>
+      <span className="text-[#29261F]">{"★".repeat(rating)}</span>
+      <span className="text-[#29261F]">{"★".repeat(5 - rating)}</span>
     </span>
   );
 }
@@ -231,7 +233,7 @@ function ReplyStatusBadge({ replied }) {
   return (
     <span
       className={`inline-flex w-fit whitespace-nowrap rounded-full px-2.5 py-1.5 text-[11px] font-semibold ${
-        replied ? "bg-[#e7edda] text-[#536738]" : "bg-[#f8e9d4] text-[#94621f]"
+        replied ? "bg-[#F4C542] text-[#29261F]" : "bg-[#F8E7A8] text-[#29261F]"
       }`}
     >
       {replied ? "Sudah Dibalas" : "Belum Dibalas"}
@@ -241,10 +243,10 @@ function ReplyStatusBadge({ replied }) {
 
 function ReportStatusBadge({ status }) {
   const styles = {
-    Menunggu: "bg-[#f8e9d4] text-[#94621f]",
-    Ditinjau: "bg-[#dce9e7] text-[#3c6861]",
-    Ditindaklanjuti: "bg-[#f5dfd8] text-[#a34d3e]",
-    Ditolak: "bg-[#e9eedf] text-[#637844]",
+    Menunggu: "bg-[#F8E7A8] text-[#29261F]",
+    Ditinjau: "bg-[#E89B3C] text-[#29261F]",
+    Ditindaklanjuti: "bg-[#FFF9EF] text-[#29261F]",
+    Ditolak: "bg-[#F4C542] text-[#29261F]",
   };
 
   return (
@@ -259,21 +261,21 @@ function ReviewDetailDialog({ review, onClose }) {
     <div
       aria-labelledby="review-detail-title"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#202a1e]/45 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#FFF9EF]/45 p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
       role="dialog"
     >
-      <section className="my-auto w-full max-w-xl rounded-xl bg-[#fffefa] p-5 shadow-xl sm:p-6">
+      <section className="my-auto w-full max-w-xl rounded-xl bg-[#FFF9EF] p-5 shadow-xl sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-[#30392c]" id="review-detail-title">Detail Review</h2>
-            <p className="mt-1 text-xs text-[#858c7d]">{review.id}</p>
+            <h2 className="text-lg font-bold text-[#29261F]" id="review-detail-title">Detail Review</h2>
+            <p className="mt-1 text-xs text-[#8B8172]">{review.id}</p>
           </div>
           <button
             aria-label="Tutup detail review"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#727a6d] transition hover:bg-[#f4f5ef]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#8B8172] transition hover:bg-[#F7F1E7]"
             onClick={onClose}
             type="button"
           >
@@ -289,20 +291,20 @@ function ReviewDetailDialog({ review, onClose }) {
           <DetailField label="Tanggal">{review.date}</DetailField>
           <DetailField label="Status"><ReplyStatusBadge replied={Boolean(review.reply)} /></DetailField>
         </dl>
-        <div className="mt-4 rounded-lg bg-[#f8f9f4] p-3.5">
-          <p className="text-xs font-semibold text-[#727a6d]">Isi Review</p>
-          <p className="mt-1.5 break-words text-sm leading-6 text-[#30392c]">{review.review}</p>
+        <div className="mt-4 rounded-lg bg-[#F7F1E7] p-3.5">
+          <p className="text-xs font-semibold text-[#8B8172]">Isi Review</p>
+          <p className="mt-1.5 break-words text-sm leading-6 text-[#29261F]">{review.review}</p>
         </div>
-        <div className="mt-3 rounded-lg border border-[#dfe6d1] bg-[#f5f7ef] p-3.5">
-          <p className="text-xs font-semibold text-[#68754b]">Balasan Seller</p>
-          <p className="mt-1.5 break-words text-sm leading-6 text-[#4d5548]">
+        <div className="mt-3 rounded-lg border border-[#29261F] bg-[#F7F1E7] p-3.5">
+          <p className="text-xs font-semibold text-[#29261F]">Balasan Seller</p>
+          <p className="mt-1.5 break-words text-sm leading-6 text-[#29261F]">
             {review.reply || "Belum ada balasan dari seller."}
           </p>
         </div>
         {review.report ? (
-          <div className="mt-3 rounded-lg border border-[#f0dfc7] bg-[#fbf5ec] p-3.5">
+          <div className="mt-3 rounded-lg border border-[#29261F] bg-[#F7F1E7] p-3.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs font-semibold text-[#94621f]">Laporan Review</p>
+              <p className="text-xs font-semibold text-[#29261F]">Laporan Review</p>
               <ReportStatusBadge status={review.report.status} />
             </div>
             <dl className="mt-2 grid gap-x-4 gap-y-2 sm:grid-cols-3">
@@ -315,7 +317,7 @@ function ReviewDetailDialog({ review, onClose }) {
 
         <div className="mt-5 flex justify-end">
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#202a1e] px-5 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
             onClick={onClose}
             type="button"
           >
@@ -329,42 +331,42 @@ function ReviewDetailDialog({ review, onClose }) {
 
 function DetailField({ label, children }) {
   return (
-    <div className="min-w-0 border-b border-[#202a1e]/[0.07] py-2.5">
-      <dt className="text-xs text-[#858c7d]">{label}</dt>
-      <dd className="mt-1 break-words text-sm font-semibold text-[#30392c]">{children}</dd>
+    <div className="min-w-0 border-b border-[#29261F]/[0.07] py-2.5">
+      <dt className="text-xs text-[#8B8172]">{label}</dt>
+      <dd className="mt-1 break-words text-sm font-semibold text-[#29261F]">{children}</dd>
     </div>
   );
 }
 
 function ReviewCard({ review, onView }) {
   return (
-    <article className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4 sm:p-5">
+    <article className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="break-words text-sm font-bold text-[#30392c]">{review.userName}</p>
-          <p className="mt-1 break-words text-xs font-medium text-[#68754b]">{review.productName}</p>
-          <p className="mt-1 break-words text-xs text-[#858c7d]">{review.storeName}</p>
+          <p className="break-words text-sm font-bold text-[#29261F]">{review.userName}</p>
+          <p className="mt-1 break-words text-xs font-medium text-[#29261F]">{review.productName}</p>
+          <p className="mt-1 break-words text-xs text-[#8B8172]">{review.storeName}</p>
         </div>
         <RatingStars rating={review.rating} size="text-lg" />
       </div>
-      <p className="mt-4 break-words text-sm leading-6 text-[#4d5548]">“{review.review}”</p>
+      <p className="mt-4 break-words text-sm leading-6 text-[#29261F]">“{review.review}”</p>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-[#858c7d]">{review.date}</p>
+        <p className="text-xs text-[#8B8172]">{review.date}</p>
         <ReplyStatusBadge replied={Boolean(review.reply)} />
       </div>
       {review.report ? (
-        <div className="mt-3 rounded-lg border border-[#f0dfc7] bg-[#fbf5ec] p-3">
+        <div className="mt-3 rounded-lg border border-[#29261F] bg-[#F7F1E7] p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs font-bold text-[#94621f]">Laporan</p>
+            <p className="text-xs font-bold text-[#29261F]">Laporan</p>
             <ReportStatusBadge status={review.report.status} />
           </div>
-          <p className="mt-1.5 break-words text-xs leading-5 text-[#727a6d]">
+          <p className="mt-1.5 break-words text-xs leading-5 text-[#8B8172]">
             {review.report.reason} · {review.report.count} laporan · {review.report.date}
           </p>
         </div>
       ) : null}
       <button
-        className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-[#202a1e]/10 px-3 text-sm font-semibold text-[#596745] transition hover:bg-[#f4f5ef]"
+        className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-[#29261F]/10 px-3 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7]"
         onClick={() => onView(review)}
         type="button"
       >
@@ -376,25 +378,25 @@ function ReviewCard({ review, onView }) {
 
 function ReportCard({ review, onReview }) {
   return (
-    <article className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4 sm:p-5">
+    <article className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="break-words text-sm font-bold text-[#30392c]">{review.userName}</p>
-          <p className="mt-1 break-words text-xs font-medium text-[#68754b]">{review.productName}</p>
-          <p className="mt-1 break-words text-xs text-[#858c7d]">{review.storeName}</p>
+          <p className="break-words text-sm font-bold text-[#29261F]">{review.userName}</p>
+          <p className="mt-1 break-words text-xs font-medium text-[#29261F]">{review.productName}</p>
+          <p className="mt-1 break-words text-xs text-[#8B8172]">{review.storeName}</p>
         </div>
         <ReportStatusBadge status={review.report.status} />
       </div>
-      <p className="mt-3 break-words text-sm leading-6 text-[#4d5548]">“{review.review}”</p>
-      <div className="mt-3 grid gap-2 rounded-lg bg-[#f8f9f4] p-3 text-xs sm:grid-cols-2">
-        <p className="break-words text-[#727a6d]"><span className="font-semibold text-[#30392c]">Pelapor:</span> {review.report.reporter}</p>
-        <p className="break-words text-[#727a6d]"><span className="font-semibold text-[#30392c]">Alasan:</span> {review.report.reason}</p>
-        <p className="text-[#727a6d]"><span className="font-semibold text-[#30392c]">Tanggal:</span> {review.report.date}</p>
-        <p className="text-[#727a6d]"><span className="font-semibold text-[#30392c]">Jumlah:</span> {review.report.count}</p>
+      <p className="mt-3 break-words text-sm leading-6 text-[#29261F]">“{review.review}”</p>
+      <div className="mt-3 grid gap-2 rounded-lg bg-[#F7F1E7] p-3 text-xs sm:grid-cols-2">
+        <p className="break-words text-[#8B8172]"><span className="font-semibold text-[#29261F]">Pelapor:</span> {review.report.reporter}</p>
+        <p className="break-words text-[#8B8172]"><span className="font-semibold text-[#29261F]">Alasan:</span> {review.report.reason}</p>
+        <p className="text-[#8B8172]"><span className="font-semibold text-[#29261F]">Tanggal:</span> {review.report.date}</p>
+        <p className="text-[#8B8172]"><span className="font-semibold text-[#29261F]">Jumlah:</span> {review.report.count}</p>
       </div>
       {review.report.status === "Menunggu" ? (
         <button
-          className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-lg bg-[#202a1e] px-3 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+          className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-lg bg-[#FFF9EF] px-3 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
           onClick={() => onReview(review)}
           type="button"
         >
@@ -410,21 +412,21 @@ function ReportReviewDialog({ review, onAction, onClose }) {
     <div
       aria-labelledby="report-review-title"
       aria-modal="true"
-      className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-[#202a1e]/45 p-4"
+      className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-[#FFF9EF]/45 p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
       role="dialog"
     >
-      <section className="my-auto w-full max-w-xl rounded-xl bg-[#fffefa] p-5 shadow-xl sm:p-6">
+      <section className="my-auto w-full max-w-xl rounded-xl bg-[#FFF9EF] p-5 shadow-xl sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-[#30392c]" id="report-review-title">Review Laporan</h2>
-            <p className="mt-1 text-xs text-[#858c7d]">{review.id}</p>
+            <h2 className="text-lg font-bold text-[#29261F]" id="report-review-title">Review Laporan</h2>
+            <p className="mt-1 text-xs text-[#8B8172]">{review.id}</p>
           </div>
           <button
             aria-label="Tutup laporan"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#727a6d] transition hover:bg-[#f4f5ef]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#8B8172] transition hover:bg-[#F7F1E7]"
             onClick={onClose}
             type="button"
           >
@@ -443,9 +445,9 @@ function ReportReviewDialog({ review, onAction, onClose }) {
           <DetailField label="Tanggal Laporan">{review.report.date}</DetailField>
           <DetailField label="Jumlah Laporan">{review.report.count}</DetailField>
         </dl>
-        <div className="mt-4 rounded-lg bg-[#f8f9f4] p-3.5">
-          <p className="text-xs font-semibold text-[#727a6d]">Review</p>
-          <p className="mt-1.5 break-words text-sm leading-6 text-[#30392c]">“{review.review}”</p>
+        <div className="mt-4 rounded-lg bg-[#F7F1E7] p-3.5">
+          <p className="text-xs font-semibold text-[#8B8172]">Review</p>
+          <p className="mt-1.5 break-words text-sm leading-6 text-[#29261F]">“{review.review}”</p>
         </div>
 
         {review.report.status === "Menunggu" ? (
@@ -454,10 +456,10 @@ function ReportReviewDialog({ review, onAction, onClose }) {
               <button
                 className={`inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold transition ${
                   action === "Tindak Lanjuti"
-                    ? "bg-[#a34d3e] text-white hover:bg-[#8d4033]"
+                    ? "bg-[#FFF9EF] text-white hover:bg-[#FFF9EF]"
                     : action === "Tolak Laporan"
-                      ? "border border-[#202a1e]/10 text-[#596745] hover:bg-[#f4f5ef]"
-                      : "bg-[#e9eedf] text-[#536738] hover:bg-[#dfe8ca]"
+                      ? "border border-[#29261F]/10 text-[#29261F] hover:bg-[#F7F1E7]"
+                      : "bg-[#F4C542] text-[#29261F] hover:bg-[#F4C542]"
                 }`}
                 key={action}
                 onClick={() => onAction({ review, action })}
@@ -470,7 +472,7 @@ function ReportReviewDialog({ review, onAction, onClose }) {
         ) : (
           <div className="mt-5 flex justify-end">
             <button
-              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#202a1e] px-5 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
               onClick={onClose}
               type="button"
             >
@@ -488,26 +490,26 @@ function ModerationConfirmationDialog({ action, onCancel, onConfirm }) {
     <div
       aria-labelledby="moderation-confirm-title"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#202a1e]/55 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#FFF9EF]/55 p-4"
       role="alertdialog"
     >
-      <section className="w-full max-w-md rounded-xl bg-[#fffefa] p-5 shadow-xl sm:p-6">
-        <h2 className="text-base font-bold text-[#30392c]" id="moderation-confirm-title">
+      <section className="w-full max-w-md rounded-xl bg-[#FFF9EF] p-5 shadow-xl sm:p-6">
+        <h2 className="text-base font-bold text-[#29261F]" id="moderation-confirm-title">
           Konfirmasi Moderasi
         </h2>
-        <p className="mt-2 break-words text-sm leading-6 text-[#727a6d]">
+        <p className="mt-2 break-words text-sm leading-6 text-[#8B8172]">
           {action.action} laporan untuk review {action.review.id}?
         </p>
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#202a1e]/10 px-5 text-sm font-semibold text-[#596745] transition hover:bg-[#f4f5ef]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#29261F]/10 px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7]"
             onClick={onCancel}
             type="button"
           >
             Batal
           </button>
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#202a1e] px-5 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
             onClick={onConfirm}
             type="button"
           >
@@ -525,7 +527,7 @@ function Pagination({ currentPage, totalPages, onChange, label }) {
   return (
     <nav aria-label={`Pagination ${label}`} className="flex flex-wrap items-center justify-center gap-1.5">
       <button
-        className="min-h-10 rounded-lg border border-[#202a1e]/10 px-3 text-xs font-semibold text-[#596745] transition hover:bg-[#f4f5ef] disabled:cursor-not-allowed disabled:opacity-40"
+        className="min-h-10 rounded-lg border border-[#29261F]/10 px-3 text-xs font-semibold text-[#29261F] transition hover:bg-[#F7F1E7] disabled:cursor-not-allowed disabled:opacity-40"
         disabled={currentPage === 1}
         onClick={() => onChange(currentPage - 1)}
         type="button"
@@ -537,8 +539,8 @@ function Pagination({ currentPage, totalPages, onChange, label }) {
           aria-current={currentPage === page ? "page" : undefined}
           className={`grid h-10 min-w-10 place-items-center rounded-lg px-3 text-xs font-semibold transition ${
             currentPage === page
-              ? "bg-[#202a1e] text-white"
-              : "border border-[#202a1e]/10 text-[#596745] hover:bg-[#f4f5ef]"
+              ? "bg-[#FFF9EF] text-white"
+              : "border border-[#29261F]/10 text-[#29261F] hover:bg-[#F7F1E7]"
           }`}
           key={page}
           onClick={() => onChange(page)}
@@ -548,7 +550,7 @@ function Pagination({ currentPage, totalPages, onChange, label }) {
         </button>
       ))}
       <button
-        className="min-h-10 rounded-lg border border-[#202a1e]/10 px-3 text-xs font-semibold text-[#596745] transition hover:bg-[#f4f5ef] disabled:cursor-not-allowed disabled:opacity-40"
+        className="min-h-10 rounded-lg border border-[#29261F]/10 px-3 text-xs font-semibold text-[#29261F] transition hover:bg-[#F7F1E7] disabled:cursor-not-allowed disabled:opacity-40"
         disabled={currentPage === totalPages}
         onClick={() => onChange(currentPage + 1)}
         type="button"
@@ -559,7 +561,7 @@ function Pagination({ currentPage, totalPages, onChange, label }) {
   );
 }
 
-export default function AdminReviewsPage() {
+function AdminReviewsMock() {
   const [reviews, setReviews] = useState(initialReviews);
   const [tab, setTab] = useState("Semua Review");
   const [search, setSearch] = useState("");
@@ -587,6 +589,7 @@ export default function AdminReviewsPage() {
             (status === "Semua Status" || review.report.status === status)
           );
         }
+
         const replied = Boolean(review.reply);
         const matchesReplyStatus =
           status === "Semua Status" ||
@@ -607,10 +610,10 @@ export default function AdminReviewsPage() {
           .toFixed(1)
           .replace(".", ",");
   const summaries = [
-    { label: "Total Review", value: reviews.length.toLocaleString("id-ID"), mark: "R", tone: "bg-[#e7edda] text-[#536738]" },
-    { label: "Rating Rata-rata", value: `${averageRating} / 5`, mark: "★", tone: "bg-[#f8e5c9] text-[#8b5924]" },
-    { label: "Belum Dibalas", value: unrepliedCount.toLocaleString("id-ID"), mark: "B", tone: "bg-[#dce9e7] text-[#3c6861]" },
-    { label: "Laporan Review", value: reportCount.toLocaleString("id-ID"), mark: "!", tone: "bg-[#f5dfd8] text-[#a34d3e]" },
+    { label: "Total Review", value: reviews.length.toLocaleString("id-ID"), mark: "R", tone: "bg-[#F4C542] text-[#29261F]" },
+    { label: "Rating Rata-rata", value: `${averageRating} / 5`, mark: "★", tone: "bg-[#F8E7A8] text-[#29261F]" },
+    { label: "Belum Dibalas", value: unrepliedCount.toLocaleString("id-ID"), mark: "B", tone: "bg-[#E89B3C] text-[#29261F]" },
+    { label: "Laporan Review", value: reportCount.toLocaleString("id-ID"), mark: "!", tone: "bg-[#FFF9EF] text-[#29261F]" },
   ];
 
   function changeFilters(update) {
@@ -651,17 +654,17 @@ export default function AdminReviewsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8b927f]">Manajemen platform</p>
-        <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#202a1e] sm:text-[30px]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8B8172]">Manajemen platform</p>
+        <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#29261F] sm:text-[30px]">
           Reviews &amp; Reports
         </h1>
-        <p className="mt-2 text-sm leading-6 text-[#727a6d]">
+        <p className="mt-2 text-sm leading-6 text-[#8B8172]">
           Pantau ulasan konsumen dan tinjau laporan review di ReMeal.
         </p>
       </header>
 
       {feedback ? (
-        <div className="flex items-start justify-between gap-3 rounded-lg border border-[#637844]/20 bg-[#e9eedf] px-4 py-3 text-sm text-[#536738]" role="status">
+        <div className="flex items-start justify-between gap-3 rounded-lg border border-[#29261F]/20 bg-[#F4C542] px-4 py-3 text-sm text-[#29261F]" role="status">
           <span>{feedback}</span>
           <button
             aria-label="Tutup notifikasi"
@@ -676,30 +679,30 @@ export default function AdminReviewsPage() {
 
       <section aria-label="Ringkasan review dan laporan" className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {summaries.map((summary) => (
-          <article className="min-w-0 rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4 sm:p-5" key={summary.label}>
+          <article className="min-w-0 rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-5" key={summary.label}>
             <div className="flex items-start justify-between gap-2">
-              <p className="min-h-8 text-xs font-medium leading-4 text-[#727a6d]">{summary.label}</p>
+              <p className="min-h-8 text-xs font-medium leading-4 text-[#8B8172]">{summary.label}</p>
               <span className={`grid h-8 min-w-8 shrink-0 place-items-center rounded-lg px-1.5 text-xs font-bold ${summary.tone}`}>
                 {summary.mark}
               </span>
             </div>
-            <p className="mt-3 break-words text-[23px] font-bold leading-tight tracking-[-0.04em] text-[#202a1e] sm:text-[26px]">
+            <p className="mt-3 break-words text-[23px] font-bold leading-tight tracking-[-0.04em] text-[#29261F] sm:text-[26px]">
               {summary.value}
             </p>
-            <p className="mt-2.5 text-[10px] leading-4 text-[#8b927f]">data contoh</p>
+            <p className="mt-2.5 text-[10px] leading-4 text-[#8B8172]">data contoh</p>
           </article>
         ))}
       </section>
 
       <section aria-label="Review dan laporan" className="space-y-4">
-        <div className="flex gap-2 border-b border-[#202a1e]/10" role="tablist">
+        <div className="flex gap-2 border-b border-[#29261F]/10" role="tablist">
           {["Semua Review", "Laporan"].map((item) => (
             <button
               aria-selected={tab === item}
               className={`min-h-11 border-b-2 px-3 text-sm font-semibold transition ${
                 tab === item
-                  ? "border-[#637844] text-[#40532c]"
-                  : "border-transparent text-[#858c7d] hover:text-[#596745]"
+                  ? "border-[#29261F] text-[#29261F]"
+                  : "border-transparent text-[#8B8172] hover:text-[#29261F]"
               }`}
               key={item}
               onClick={() => changeTab(item)}
@@ -715,9 +718,9 @@ export default function AdminReviewsPage() {
         <div className="grid gap-3 md:grid-cols-[minmax(220px,1fr)_170px_210px]">
           <label className="relative block">
             <span className="sr-only">Cari produk, toko, atau pengguna</span>
-            <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#858c7d]">⌕</span>
+            <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8B8172]">⌕</span>
             <input
-              className="h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white pl-9 pr-3 text-sm text-[#30392c] outline-none transition placeholder:text-[#a0a497] focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+              className="h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white pl-9 pr-3 text-sm text-[#29261F] outline-none transition placeholder:text-[#8B8172] focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
               onChange={(event) => changeFilters(() => setSearch(event.target.value))}
               placeholder="Cari produk, toko, atau pengguna..."
               type="search"
@@ -727,7 +730,7 @@ export default function AdminReviewsPage() {
           <label className="block">
             <span className="sr-only">Filter rating</span>
             <select
-              className="h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white px-3 text-sm text-[#4d5548] outline-none focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+              className="h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
               onChange={(event) => changeFilters(() => setRating(event.target.value))}
               value={rating}
             >
@@ -738,7 +741,7 @@ export default function AdminReviewsPage() {
           <label className="block">
             <span className="sr-only">Filter status {reportTab ? "laporan" : "balasan"}</span>
             <select
-              className="h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white px-3 text-sm text-[#4d5548] outline-none focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+              className="h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
               onChange={(event) => changeFilters(() => setStatus(event.target.value))}
               value={status}
             >
@@ -749,8 +752,8 @@ export default function AdminReviewsPage() {
 
         <section aria-label={reportTab ? "Daftar laporan" : "Daftar review"} className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-bold text-[#30392c]">{reportTab ? "Daftar Laporan Review" : "Daftar Review"}</h2>
-            <span className="text-xs text-[#858c7d]">
+            <h2 className="text-sm font-bold text-[#29261F]">{reportTab ? "Daftar Laporan Review" : "Daftar Review"}</h2>
+            <span className="text-xs text-[#8B8172]">
               {filteredReviews.length === 0
                 ? reportTab ? "0 laporan" : "0 review"
                 : `${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, filteredReviews.length)} dari ${filteredReviews.length} ${reportTab ? "laporan" : "review"}`}
@@ -758,11 +761,11 @@ export default function AdminReviewsPage() {
           </div>
 
           {filteredReviews.length === 0 ? (
-            <div className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] px-5 py-12 text-center">
-              <h3 className="text-sm font-bold text-[#30392c]">
+            <div className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] px-5 py-12 text-center">
+              <h3 className="text-sm font-bold text-[#29261F]">
                 {reportTab ? "Tidak ada laporan review" : "Review tidak ditemukan"}
               </h3>
-              <p className="mt-1.5 text-sm text-[#858c7d]">
+              <p className="mt-1.5 text-sm text-[#8B8172]">
                 {reportTab
                   ? "Belum ada laporan yang sesuai dengan pencarian atau filter."
                   : "Coba ubah kata kunci atau filter yang digunakan."}
@@ -792,7 +795,7 @@ export default function AdminReviewsPage() {
         </section>
       </section>
 
-      <p className="text-center text-[11px] text-[#9aa092]">
+      <p className="text-center text-[11px] text-[#8B8172]">
         Review dan laporan contoh — belum terhubung ke database.
       </p>
 
@@ -815,4 +818,8 @@ export default function AdminReviewsPage() {
       ) : null}
     </div>
   );
+}
+
+export default function AdminReviewsPage() {
+  return ADMIN_DEV_MODE ? <AdminReviewsMock /> : <AdminReviewsApi />;
 }

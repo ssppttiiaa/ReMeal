@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ADMIN_DEV_MODE } from "../../../lib/adminDevMode";
+import { AdminStoresApi } from "../_components/AdminApiViews";
 
 const stores = [
   {
@@ -202,17 +204,17 @@ const stores = [
 
 const pageSize = 10;
 const summaryCards = [
-  { label: "Total UMKM", value: "86", detail: "seluruh toko contoh", mark: "T", tone: "bg-[#e7edda] text-[#536738]" },
-  { label: "UMKM Aktif", value: "72", detail: "toko beroperasi", mark: "A", tone: "bg-[#dce9e7] text-[#3c6861]" },
-  { label: "Menunggu Verifikasi", value: "8", detail: "perlu ditinjau", mark: "V", tone: "bg-[#f8e5c9] text-[#8b5924]" },
-  { label: "Nonaktif", value: "6", detail: "toko tidak aktif", mark: "N", tone: "bg-[#f5dfd8] text-[#a34d3e]" },
+  { label: "Total UMKM", value: "86", detail: "seluruh toko contoh", mark: "T", tone: "bg-[#F4C542] text-[#29261F]" },
+  { label: "UMKM Aktif", value: "72", detail: "toko beroperasi", mark: "A", tone: "bg-[#E89B3C] text-[#29261F]" },
+  { label: "Menunggu Verifikasi", value: "8", detail: "perlu ditinjau", mark: "V", tone: "bg-[#F8E7A8] text-[#29261F]" },
+  { label: "Nonaktif", value: "6", detail: "toko tidak aktif", mark: "N", tone: "bg-[#FFF9EF] text-[#29261F]" },
 ];
 
 function StoreAvatar({ name }) {
   return (
     <span
       aria-hidden="true"
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e9eedf] text-sm font-bold text-[#637844]"
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#F4C542] text-sm font-bold text-[#29261F]"
     >
       {name.trim().slice(0, 1).toLocaleUpperCase("id-ID")}
     </span>
@@ -221,9 +223,11 @@ function StoreAvatar({ name }) {
 
 function StoreStatusBadge({ status }) {
   const styles = {
-    Aktif: "bg-[#e9eedf] text-[#637844]",
-    "Menunggu Verifikasi": "bg-[#f8e9d4] text-[#94621f]",
-    Nonaktif: "bg-[#f5dfd8] text-[#a34d3e]",
+    Aktif: "bg-[#F4C542] text-[#29261F]",
+    "Menunggu Verifikasi": "bg-[#F8E7A8] text-[#29261F]",
+    Nonaktif: "bg-[#F8E7A8] text-[#29261F]",
+    Ditolak: "bg-[#29261F] text-white",
+    Ditangguhkan: "bg-[#E89B3C] text-[#29261F]",
   };
 
   return (
@@ -233,7 +237,37 @@ function StoreStatusBadge({ status }) {
   );
 }
 
-function StoreDetailDialog({ store, onClose }) {
+function MockStoreVerificationActions({ store, onUpdate }) {
+  const actionsByStatus = {
+    "Menunggu Verifikasi": [["Aktif", "Setujui"], ["Ditolak", "Tolak"]],
+    Aktif: [["Ditangguhkan", "Tangguhkan"]],
+    Nonaktif: [["Aktif", "Aktifkan kembali"]],
+    Ditangguhkan: [["Aktif", "Aktifkan kembali"]],
+    Ditolak: [["Aktif", "Setujui Ulang"]],
+  };
+  const actions = actionsByStatus[store.status] ?? [];
+
+  if (actions.length === 0) {
+    return <span className="text-xs text-[#8B8172]">Status toko belum dikenali: {store.status || "—"}</span>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {actions.map(([nextStatus, label]) => (
+        <button
+          className="min-h-8 rounded-lg border border-[#29261F]/15 px-2.5 text-xs font-semibold text-[#29261F] transition hover:bg-[#F8E7A8]"
+          key={nextStatus}
+          onClick={() => onUpdate(store, nextStatus)}
+          type="button"
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function StoreDetailDialog({ store, onClose, onUpdate }) {
   const details = [
     ["Nama Toko", store.name],
     ["Pemilik", store.owner],
@@ -250,24 +284,24 @@ function StoreDetailDialog({ store, onClose }) {
     <div
       aria-labelledby="store-detail-title"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#202a1e]/45 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#FFF9EF]/45 p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
       role="dialog"
     >
-      <section className="my-auto w-full max-w-lg rounded-xl bg-[#fffefa] p-5 shadow-xl sm:p-6">
+      <section className="my-auto w-full max-w-lg rounded-xl bg-[#FFF9EF] p-5 shadow-xl sm:p-6">
         <div className="flex items-start gap-3">
           <StoreAvatar name={store.name} />
           <div className="min-w-0 flex-1">
-            <h2 className="break-words text-lg font-bold text-[#30392c]" id="store-detail-title">
+            <h2 className="break-words text-lg font-bold text-[#29261F]" id="store-detail-title">
               Detail UMKM
             </h2>
-            <p className="mt-1 break-words text-xs text-[#858c7d]">{store.name}</p>
+            <p className="mt-1 break-words text-xs text-[#8B8172]">{store.name}</p>
           </div>
           <button
             aria-label="Tutup detail"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#727a6d] transition hover:bg-[#f4f5ef]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#8B8172] transition hover:bg-[#F7F1E7]"
             onClick={onClose}
             type="button"
           >
@@ -280,16 +314,20 @@ function StoreDetailDialog({ store, onClose }) {
         </div>
         <dl className="mt-3 grid gap-x-5 sm:grid-cols-2">
           {details.map(([label, value]) => (
-            <div className="min-w-0 border-b border-[#202a1e]/[0.07] py-3" key={label}>
-              <dt className="text-xs text-[#858c7d]">{label}</dt>
-              <dd className="mt-1 break-words text-sm font-semibold text-[#30392c]">{value}</dd>
+            <div className="min-w-0 border-b border-[#29261F]/[0.07] py-3" key={label}>
+              <dt className="text-xs text-[#8B8172]">{label}</dt>
+              <dd className="mt-1 break-words text-sm font-semibold text-[#29261F]">{value}</dd>
             </div>
           ))}
         </dl>
 
+        <div className="mt-5 border-t border-[#29261F]/[0.07] pt-4">
+          <p className="mb-2 text-xs font-semibold text-[#29261F]">Verifikasi Super Admin</p>
+          <MockStoreVerificationActions onUpdate={onUpdate} store={store} />
+        </div>
         <div className="mt-5 flex justify-end">
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#202a1e] px-5 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
             onClick={onClose}
             type="button"
           >
@@ -301,33 +339,36 @@ function StoreDetailDialog({ store, onClose }) {
   );
 }
 
-function StoreCard({ store, onView }) {
+function StoreCard({ store, onView, onUpdate }) {
   return (
-    <article className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4">
+    <article className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4">
       <div className="flex items-start gap-3">
         <StoreAvatar name={store.name} />
         <div className="min-w-0 flex-1">
-          <h3 className="break-words text-sm font-bold text-[#30392c]">{store.name}</h3>
-          <p className="mt-1 text-xs text-[#727a6d]">Pemilik: {store.owner}</p>
-          <p className="mt-1 break-all text-xs leading-5 text-[#727a6d]">{store.email}</p>
+          <h3 className="break-words text-sm font-bold text-[#29261F]">{store.name}</h3>
+          <p className="mt-1 text-xs text-[#8B8172]">Pemilik: {store.owner}</p>
+          <p className="mt-1 break-all text-xs leading-5 text-[#8B8172]">{store.email}</p>
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#202a1e]/[0.07] pt-3">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#29261F]/[0.07] pt-3">
         <StoreStatusBadge status={store.status} />
-        <span className="text-xs text-[#727a6d]">{store.products} produk aktif</span>
+        <span className="text-xs text-[#8B8172]">{store.products} produk aktif</span>
       </div>
       <div className="mt-3 flex items-start justify-between gap-3">
-        <div className="min-w-0 text-[11px] leading-5 text-[#858c7d]">
+        <div className="min-w-0 text-[11px] leading-5 text-[#8B8172]">
           <p className="break-words">{store.location}</p>
           <p>Bergabung {store.joined}</p>
         </div>
         <button
-          className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-lg px-3 text-xs font-semibold text-[#637844] transition hover:bg-[#edf1e4]"
+          className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-lg px-3 text-xs font-semibold text-[#29261F] transition hover:bg-[#F4C542]"
           onClick={() => onView(store)}
           type="button"
         >
           Lihat Detail
         </button>
+      </div>
+      <div className="mt-3 border-t border-[#29261F]/[0.07] pt-3">
+        <MockStoreVerificationActions onUpdate={onUpdate} store={store} />
       </div>
     </article>
   );
@@ -339,7 +380,7 @@ function Pagination({ currentPage, totalPages, onChange }) {
   return (
     <nav aria-label="Pagination UMKM" className="flex flex-wrap items-center justify-center gap-1.5">
       <button
-        className="min-h-10 rounded-lg border border-[#202a1e]/10 px-3 text-xs font-semibold text-[#596745] transition hover:bg-[#f4f5ef] disabled:cursor-not-allowed disabled:opacity-40"
+        className="min-h-10 rounded-lg border border-[#29261F]/10 px-3 text-xs font-semibold text-[#29261F] transition hover:bg-[#F7F1E7] disabled:cursor-not-allowed disabled:opacity-40"
         disabled={currentPage === 1}
         onClick={() => onChange(currentPage - 1)}
         type="button"
@@ -351,8 +392,8 @@ function Pagination({ currentPage, totalPages, onChange }) {
           aria-current={currentPage === page ? "page" : undefined}
           className={`grid h-10 min-w-10 place-items-center rounded-lg px-3 text-xs font-semibold transition ${
             currentPage === page
-              ? "bg-[#202a1e] text-white"
-              : "border border-[#202a1e]/10 text-[#596745] hover:bg-[#f4f5ef]"
+              ? "bg-[#FFF9EF] text-white"
+              : "border border-[#29261F]/10 text-[#29261F] hover:bg-[#F7F1E7]"
           }`}
           key={page}
           onClick={() => onChange(page)}
@@ -362,7 +403,7 @@ function Pagination({ currentPage, totalPages, onChange }) {
         </button>
       ))}
       <button
-        className="min-h-10 rounded-lg border border-[#202a1e]/10 px-3 text-xs font-semibold text-[#596745] transition hover:bg-[#f4f5ef] disabled:cursor-not-allowed disabled:opacity-40"
+        className="min-h-10 rounded-lg border border-[#29261F]/10 px-3 text-xs font-semibold text-[#29261F] transition hover:bg-[#F7F1E7] disabled:cursor-not-allowed disabled:opacity-40"
         disabled={currentPage === totalPages}
         onClick={() => onChange(currentPage + 1)}
         type="button"
@@ -373,16 +414,18 @@ function Pagination({ currentPage, totalPages, onChange }) {
   );
 }
 
-export default function AdminStoresPage() {
+function AdminStoresMock() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("Semua Status");
   const [currentPage, setCurrentPage] = useState(1);
+  const [mockStores, setMockStores] = useState(stores);
   const [selectedStore, setSelectedStore] = useState(null);
+  const [feedback, setFeedback] = useState("");
   const normalizedSearch = search.trim().toLocaleLowerCase("id-ID");
 
   const filteredStores = useMemo(
     () =>
-      stores.filter((store) => {
+      mockStores.filter((store) => {
         const matchesSearch =
           !normalizedSearch ||
           store.name.toLocaleLowerCase("id-ID").includes(normalizedSearch) ||
@@ -391,7 +434,7 @@ export default function AdminStoresPage() {
         const matchesStatus = status === "Semua Status" || store.status === status;
         return matchesSearch && matchesStatus;
       }),
-    [normalizedSearch, status],
+    [mockStores, normalizedSearch, status],
   );
 
   const totalPages = Math.ceil(filteredStores.length / pageSize);
@@ -402,45 +445,61 @@ export default function AdminStoresPage() {
     setCurrentPage(1);
   }
 
+  function updateMockVerification(store, nextStatus) {
+    let reason = "";
+    if (nextStatus === "Ditolak" || nextStatus === "Ditangguhkan") {
+      reason = window.prompt(`Masukkan alasan ${nextStatus.toLocaleLowerCase("id-ID")} (wajib):`)?.trim() ?? "";
+      if (!reason) return;
+    }
+    if (!window.confirm(`${nextStatus} toko ${store.name}?`)) return;
+
+    const updatedStore = { ...store, status: nextStatus };
+    setMockStores((current) => current.map((item) => item.id === store.id ? updatedStore : item));
+    setSelectedStore((current) => current?.id === store.id ? updatedStore : current);
+    setFeedback(`Status ${store.name} berubah menjadi ${nextStatus} pada data development saja${reason ? ` · Alasan: ${reason}` : ""}.`);
+  }
+
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8b927f]">Manajemen platform</p>
-        <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#202a1e] sm:text-[30px]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8B8172]">Manajemen platform</p>
+        <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#29261F] sm:text-[30px]">
           Stores / UMKM
         </h1>
-        <p className="mt-2 text-sm leading-6 text-[#727a6d]">
+        <p className="mt-2 text-sm leading-6 text-[#8B8172]">
           Pantau toko dan UMKM yang terdaftar di ReMeal.
         </p>
       </header>
 
+      {feedback ? <p className="rounded-lg border border-[#29261F]/10 bg-[#F8E7A8] px-4 py-3 text-sm text-[#29261F]" role="status">{feedback}</p> : null}
+
       <section aria-label="Ringkasan UMKM" className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {summaryCards.map((summary) => (
-          <article className="min-w-0 rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4 sm:p-5" key={summary.label}>
+          <article className="min-w-0 rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-5" key={summary.label}>
             <div className="flex items-start justify-between gap-2">
-              <p className="min-h-8 text-xs font-medium leading-4 text-[#727a6d]">{summary.label}</p>
+              <p className="min-h-8 text-xs font-medium leading-4 text-[#8B8172]">{summary.label}</p>
               <span className={`grid h-8 min-w-8 shrink-0 place-items-center rounded-lg px-1.5 text-xs font-bold ${summary.tone}`}>
                 {summary.mark}
               </span>
             </div>
-            <p className="mt-3 break-words text-[23px] font-bold leading-none tracking-[-0.04em] text-[#202a1e] sm:text-[26px]">
+            <p className="mt-3 break-words text-[23px] font-bold leading-none tracking-[-0.04em] text-[#29261F] sm:text-[26px]">
               {summary.value}
             </p>
-            <p className="mt-2.5 break-words text-[10px] leading-4 text-[#8b927f]">{summary.detail}</p>
+            <p className="mt-2.5 break-words text-[10px] leading-4 text-[#8B8172]">{summary.detail}</p>
           </article>
         ))}
       </section>
 
       <section
         aria-label="Cari dan filter UMKM"
-        className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4 sm:p-5"
+        className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-5"
       >
         <div className="grid gap-3 md:grid-cols-[minmax(220px,1fr)_220px]">
           <label className="relative block">
             <span className="sr-only">Cari nama toko atau pemilik</span>
-            <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#858c7d]">⌕</span>
+            <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8B8172]">⌕</span>
             <input
-              className="h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white pl-9 pr-3 text-sm text-[#30392c] outline-none transition placeholder:text-[#a0a497] focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+              className="h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white pl-9 pr-3 text-sm text-[#29261F] outline-none transition placeholder:text-[#8B8172] focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
               onChange={(event) => changeFilters(() => setSearch(event.target.value))}
               placeholder="Cari nama toko atau pemilik..."
               type="search"
@@ -450,7 +509,7 @@ export default function AdminStoresPage() {
           <label className="block">
             <span className="sr-only">Filter status</span>
             <select
-              className="h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white px-3 text-sm text-[#4d5548] outline-none focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+              className="h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
               onChange={(event) => changeFilters(() => setStatus(event.target.value))}
               value={status}
             >
@@ -458,6 +517,8 @@ export default function AdminStoresPage() {
               <option>Aktif</option>
               <option>Menunggu Verifikasi</option>
               <option>Nonaktif</option>
+              <option>Ditolak</option>
+              <option>Ditangguhkan</option>
             </select>
           </label>
         </div>
@@ -465,8 +526,8 @@ export default function AdminStoresPage() {
 
       <section aria-label="Daftar UMKM" className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-bold text-[#30392c]">Daftar UMKM</h2>
-          <span className="text-xs text-[#858c7d]">
+          <h2 className="text-sm font-bold text-[#29261F]">Daftar UMKM</h2>
+          <span className="text-xs text-[#8B8172]">
             {filteredStores.length === 0
               ? "0 UMKM"
               : `${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, filteredStores.length)} dari ${filteredStores.length} UMKM`}
@@ -474,9 +535,9 @@ export default function AdminStoresPage() {
         </div>
 
         {filteredStores.length === 0 ? (
-          <div className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] px-5 py-12 text-center">
-            <h3 className="text-sm font-bold text-[#30392c]">UMKM tidak ditemukan</h3>
-            <p className="mt-1.5 text-sm text-[#858c7d]">
+          <div className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] px-5 py-12 text-center">
+            <h3 className="text-sm font-bold text-[#29261F]">UMKM tidak ditemukan</h3>
+            <p className="mt-1.5 text-sm text-[#8B8172]">
               Coba ubah kata kunci atau filter yang digunakan.
             </p>
           </div>
@@ -484,57 +545,56 @@ export default function AdminStoresPage() {
           <>
             <div className="space-y-3 lg:hidden">
               {visibleStores.map((store) => (
-                <StoreCard key={store.id} onView={setSelectedStore} store={store} />
+                <StoreCard key={store.id} onUpdate={updateMockVerification} onView={setSelectedStore} store={store} />
               ))}
             </div>
 
-            <div className="hidden overflow-x-auto rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] lg:block">
+            <div className="hidden overflow-x-auto rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] lg:block">
               <table className="w-full min-w-[1000px] table-fixed text-left">
                 <colgroup>
-                  <col className="w-[22%]" />
+                  <col className="w-[20%]" />
                   <col className="w-[12%]" />
-                  <col className="w-[23%]" />
-                  <col className="w-[17%]" />
-                  <col className="w-[14%]" />
-                  <col className="w-[7%]" />
-                  <col className="w-[10%]" />
+                  <col className="w-[21%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[13%]" />
+                  <col className="w-[6%]" />
+                  <col className="w-[12%]" />
                 </colgroup>
-                <thead className="border-b border-[#202a1e]/[0.07] bg-[#f8f9f4]">
-                  <tr className="text-[11px] font-semibold text-[#727a6d]">
+                <thead className="border-b border-[#29261F]/[0.07] bg-[#F7F1E7]">
+                  <tr className="text-[11px] font-semibold text-[#8B8172]">
                     <th className="px-4 py-3.5">Toko</th>
                     <th className="px-4 py-3.5">Pemilik</th>
                     <th className="px-4 py-3.5">Email</th>
                     <th className="px-4 py-3.5">Status</th>
                     <th className="px-4 py-3.5">Bergabung</th>
                     <th className="px-4 py-3.5">Produk</th>
-                    <th className="px-4 py-3.5">Aksi</th>
+                    <th className="px-4 py-3.5">Aksi Verifikasi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#202a1e]/[0.07]">
+                <tbody className="divide-y divide-[#29261f]/[0.07]">
                   {visibleStores.map((store) => (
-                    <tr className="text-xs text-[#30392c]" key={store.id}>
+                    <tr className="text-xs text-[#29261F]" key={store.id}>
                       <td className="px-4 py-3.5">
                         <div className="flex min-w-0 items-center gap-3">
                           <StoreAvatar name={store.name} />
                           <div className="min-w-0">
                             <p className="truncate font-semibold">{store.name}</p>
-                            <p className="mt-1 truncate text-[10px] text-[#858c7d]">{store.location}</p>
+                            <p className="mt-1 truncate text-[10px] text-[#8B8172]">{store.location}</p>
                           </div>
                         </div>
                       </td>
                       <td className="break-words px-4 py-3.5">{store.owner}</td>
                       <td className="break-all px-4 py-3.5">{store.email}</td>
                       <td className="px-4 py-3.5"><StoreStatusBadge status={store.status} /></td>
-                      <td className="px-4 py-3.5 text-[#727a6d]">{store.joined}</td>
+                      <td className="px-4 py-3.5 text-[#8B8172]">{store.joined}</td>
                       <td className="px-4 py-3.5">{store.products}</td>
                       <td className="px-4 py-3.5">
-                        <button
-                          className="whitespace-nowrap text-xs font-semibold text-[#637844] transition hover:text-[#40532c]"
-                          onClick={() => setSelectedStore(store)}
-                          type="button"
-                        >
-                          Lihat Detail
-                        </button>
+                        <div className="space-y-2">
+                          <button className="whitespace-nowrap text-xs font-semibold text-[#29261F] underline" onClick={() => setSelectedStore(store)} type="button">
+                            Detail
+                          </button>
+                          <MockStoreVerificationActions onUpdate={updateMockVerification} store={store} />
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -549,13 +609,17 @@ export default function AdminStoresPage() {
         )}
       </section>
 
-      <p className="text-center text-[11px] text-[#9aa092]">
+      <p className="text-center text-[11px] text-[#8B8172]">
         Daftar dan ringkasan UMKM contoh — belum terhubung ke database.
       </p>
 
       {selectedStore ? (
-        <StoreDetailDialog onClose={() => setSelectedStore(null)} store={selectedStore} />
+        <StoreDetailDialog onClose={() => setSelectedStore(null)} onUpdate={updateMockVerification} store={selectedStore} />
       ) : null}
     </div>
   );
+}
+
+export default function AdminStoresPage() {
+  return ADMIN_DEV_MODE ? <AdminStoresMock /> : <AdminStoresApi />;
 }

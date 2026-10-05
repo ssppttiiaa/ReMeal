@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { PanelPreferences } from "../../_components/PanelPreferences";
+import { ADMIN_DEV_MODE } from "../../../lib/adminDevMode";
+import { AdminSettingsApi } from "../_components/AdminApiViews";
 
 const initialProfile = {
   name: "Admin ReMeal",
@@ -22,14 +25,14 @@ const notificationOptions = [
 ];
 
 const fieldClassName =
-  "mt-2 h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white px-3 text-sm text-[#30392c] outline-none transition placeholder:text-[#a0a497] focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]";
+  "mt-2 h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none transition placeholder:text-[#8B8172] focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]";
 
 function SettingsSection({ title, description, children }) {
   return (
-    <section className="min-w-0 rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4 sm:p-5">
+    <section className="min-w-0 rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-5">
       <div className="mb-5">
-        <h2 className="text-base font-bold text-[#30392c]">{title}</h2>
-        <p className="mt-1 text-xs leading-5 text-[#858c7d]">{description}</p>
+        <h2 className="text-base font-bold text-[#29261F]">{title}</h2>
+        <p className="mt-1 text-xs leading-5 text-[#8B8172]">{description}</p>
       </div>
       {children}
     </section>
@@ -58,25 +61,25 @@ function ProfileDialog({ profile, onCancel, onSave }) {
     <div
       aria-labelledby="profile-dialog-title"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#202a1e]/45 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#FFF9EF]/45 p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onCancel();
       }}
       role="dialog"
     >
       <form
-        className="my-auto w-full max-w-lg rounded-xl bg-[#fffefa] p-5 shadow-xl sm:p-6"
+        className="my-auto w-full max-w-lg rounded-xl bg-[#FFF9EF] p-5 shadow-xl sm:p-6"
         noValidate
         onSubmit={submit}
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-[#30392c]" id="profile-dialog-title">Edit Profil</h2>
-            <p className="mt-1 text-xs leading-5 text-[#858c7d]">Perubahan hanya disimpan sementara di halaman ini.</p>
+            <h2 className="text-lg font-bold text-[#29261F]" id="profile-dialog-title">Edit Profil</h2>
+            <p className="mt-1 text-xs leading-5 text-[#8B8172]">Perubahan hanya disimpan sementara di halaman ini.</p>
           </div>
           <button
             aria-label="Tutup edit profil"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#727a6d] transition hover:bg-[#f4f5ef]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#8B8172] transition hover:bg-[#F7F1E7]"
             onClick={onCancel}
             type="button"
           >
@@ -86,17 +89,17 @@ function ProfileDialog({ profile, onCancel, onSave }) {
 
         <div className="mt-5 space-y-4">
           <label className="block">
-            <span className="text-xs font-semibold text-[#4d5548]">Nama</span>
+            <span className="text-xs font-semibold text-[#29261F]">Nama</span>
             <input
               aria-invalid={Boolean(errors.name)}
               className={fieldClassName}
               onChange={(event) => setName(event.target.value)}
               value={name}
             />
-            {errors.name ? <span className="mt-1 block text-xs text-[#a34d3e]">{errors.name}</span> : null}
+            {errors.name ? <span className="mt-1 block text-xs text-[#29261F]">{errors.name}</span> : null}
           </label>
           <label className="block">
-            <span className="text-xs font-semibold text-[#4d5548]">Email</span>
+            <span className="text-xs font-semibold text-[#29261F]">Email</span>
             <input
               aria-invalid={Boolean(errors.email)}
               className={fieldClassName}
@@ -104,20 +107,20 @@ function ProfileDialog({ profile, onCancel, onSave }) {
               type="email"
               value={email}
             />
-            {errors.email ? <span className="mt-1 block text-xs text-[#a34d3e]">{errors.email}</span> : null}
+            {errors.email ? <span className="mt-1 block text-xs text-[#29261F]">{errors.email}</span> : null}
           </label>
         </div>
 
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#202a1e]/10 px-5 text-sm font-semibold text-[#596745] transition hover:bg-[#f4f5ef]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#29261F]/10 px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7]"
             onClick={onCancel}
             type="button"
           >
             Batal
           </button>
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#202a1e] px-5 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
             type="submit"
           >
             Simpan
@@ -162,27 +165,27 @@ function PasswordDialog({ onCancel, onSave }) {
     <div
       aria-labelledby="password-dialog-title"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#202a1e]/45 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#FFF9EF]/45 p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onCancel();
       }}
       role="dialog"
     >
       <form
-        className="my-auto w-full max-w-lg rounded-xl bg-[#fffefa] p-5 shadow-xl sm:p-6"
+        className="my-auto w-full max-w-lg rounded-xl bg-[#FFF9EF] p-5 shadow-xl sm:p-6"
         noValidate
         onSubmit={submit}
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-[#30392c]" id="password-dialog-title">Ubah Password</h2>
-            <p className="mt-1 text-xs leading-5 text-[#858c7d]">
+            <h2 className="text-lg font-bold text-[#29261F]" id="password-dialog-title">Ubah Password</h2>
+            <p className="mt-1 text-xs leading-5 text-[#8B8172]">
               Form simulasi. Password tidak dikirim atau disimpan.
             </p>
           </div>
           <button
             aria-label="Tutup ubah password"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#727a6d] transition hover:bg-[#f4f5ef]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#8B8172] transition hover:bg-[#F7F1E7]"
             onClick={onCancel}
             type="button"
           >
@@ -193,7 +196,7 @@ function PasswordDialog({ onCancel, onSave }) {
         <div className="mt-5 space-y-4">
           {fields.map(({ key, label, autocomplete }) => (
             <label className="block" key={key}>
-              <span className="text-xs font-semibold text-[#4d5548]">{label}</span>
+              <span className="text-xs font-semibold text-[#29261F]">{label}</span>
               <input
                 aria-invalid={Boolean(errors[key])}
                 autoComplete={autocomplete}
@@ -202,21 +205,21 @@ function PasswordDialog({ onCancel, onSave }) {
                 type="password"
                 value={passwords[key]}
               />
-              {errors[key] ? <span className="mt-1 block text-xs text-[#a34d3e]">{errors[key]}</span> : null}
+              {errors[key] ? <span className="mt-1 block text-xs text-[#29261F]">{errors[key]}</span> : null}
             </label>
           ))}
         </div>
 
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#202a1e]/10 px-5 text-sm font-semibold text-[#596745] transition hover:bg-[#f4f5ef]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#29261F]/10 px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7]"
             onClick={onCancel}
             type="button"
           >
             Batal
           </button>
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#202a1e] px-5 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
             type="submit"
           >
             Simpan Password
@@ -232,25 +235,25 @@ function ConfirmationDialog({ title, message, confirmLabel, onCancel, onConfirm 
     <div
       aria-labelledby="confirmation-title"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#202a1e]/45 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#FFF9EF]/45 p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onCancel();
       }}
       role="alertdialog"
     >
-      <section className="w-full max-w-md rounded-xl bg-[#fffefa] p-5 shadow-xl sm:p-6">
-        <h2 className="text-base font-bold text-[#30392c]" id="confirmation-title">{title}</h2>
-        <p className="mt-2 break-words text-sm leading-6 text-[#727a6d]">{message}</p>
+      <section className="w-full max-w-md rounded-xl bg-[#FFF9EF] p-5 shadow-xl sm:p-6">
+        <h2 className="text-base font-bold text-[#29261F]" id="confirmation-title">{title}</h2>
+        <p className="mt-2 break-words text-sm leading-6 text-[#8B8172]">{message}</p>
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#202a1e]/10 px-5 text-sm font-semibold text-[#596745] transition hover:bg-[#f4f5ef]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#29261F]/10 px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7]"
             onClick={onCancel}
             type="button"
           >
             Batal
           </button>
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#202a1e] px-5 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
             onClick={onConfirm}
             type="button"
           >
@@ -264,16 +267,16 @@ function ConfirmationDialog({ title, message, confirmLabel, onCancel, onConfirm 
 
 function NotificationToggle({ option, enabled, onChange }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-[#202a1e]/[0.07] py-4 last:border-b-0 last:pb-0">
+    <div className="flex items-center justify-between gap-4 border-b border-[#29261F]/[0.07] py-4 last:border-b-0 last:pb-0">
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-[#30392c]">{option.label}</p>
-        <p className="mt-1 text-xs leading-5 text-[#858c7d]">{option.description}</p>
+        <p className="text-sm font-semibold text-[#29261F]">{option.label}</p>
+        <p className="mt-1 text-xs leading-5 text-[#8B8172]">{option.description}</p>
       </div>
       <button
         aria-checked={enabled}
         aria-label={option.label}
         className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition ${
-          enabled ? "bg-[#637844]" : "bg-[#c9cdc2]"
+          enabled ? "bg-[#F4C542]" : "bg-[#F7F1E7]"
         }`}
         onClick={onChange}
         role="switch"
@@ -285,11 +288,9 @@ function NotificationToggle({ option, enabled, onChange }) {
   );
 }
 
-export default function AdminSettingsPage() {
+function AdminSettingsMock() {
   const [profile, setProfile] = useState(initialProfile);
   const [notifications, setNotifications] = useState(initialNotifications);
-  const [language, setLanguage] = useState("Bahasa Indonesia");
-  const [appearance, setAppearance] = useState("System");
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -309,17 +310,17 @@ export default function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8b927f]">Preferensi akun</p>
-        <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#202a1e] sm:text-[30px]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8B8172]">Preferensi akun</p>
+        <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#29261F] sm:text-[30px]">
           Pengaturan
         </h1>
-        <p className="mt-2 text-sm leading-6 text-[#727a6d]">
+        <p className="mt-2 text-sm leading-6 text-[#8B8172]">
           Kelola profil admin dan preferensi penggunaan ReMeal.
         </p>
       </header>
 
       {feedback ? (
-        <div className="flex items-start justify-between gap-3 rounded-lg border border-[#637844]/20 bg-[#e9eedf] px-4 py-3 text-sm text-[#536738]" role="status">
+        <div className="flex items-start justify-between gap-3 rounded-lg border border-[#29261F]/20 bg-[#F4C542] px-4 py-3 text-sm text-[#29261F]" role="status">
           <span>{feedback}</span>
           <button
             aria-label="Tutup notifikasi"
@@ -338,18 +339,18 @@ export default function AdminSettingsPage() {
           title="Akun Admin"
         >
           <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center">
-            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-[#dce9e7] text-lg font-bold text-[#3c6861]">
+            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-[#E89B3C] text-lg font-bold text-[#29261F]">
               {profile.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toLocaleUpperCase("id-ID")}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="break-words text-base font-bold text-[#30392c]">{profile.name}</p>
-              <p className="mt-1 break-all text-sm text-[#727a6d]">{profile.email}</p>
-              <span className="mt-2 inline-flex rounded-full bg-[#eee8f3] px-2.5 py-1.5 text-[11px] font-semibold text-[#725b84]">
+              <p className="break-words text-base font-bold text-[#29261F]">{profile.name}</p>
+              <p className="mt-1 break-all text-sm text-[#8B8172]">{profile.email}</p>
+              <span className="mt-2 inline-flex rounded-full bg-[#F8E7A8] px-2.5 py-1.5 text-[11px] font-semibold text-[#29261F]">
                 Super Admin
               </span>
             </div>
             <button
-              className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-lg border border-[#202a1e]/10 px-4 text-sm font-semibold text-[#596745] transition hover:bg-[#f4f5ef] sm:w-auto"
+              className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-lg border border-[#29261F]/10 px-4 text-sm font-semibold text-[#29261F] transition hover:bg-[#F7F1E7] sm:w-auto"
               onClick={() => setProfileDialogOpen(true)}
               type="button"
             >
@@ -365,26 +366,26 @@ export default function AdminSettingsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 space-y-3">
               <div>
-                <p className="text-xs text-[#858c7d]">Email terakhir digunakan</p>
-                <p className="mt-1 break-all text-sm font-semibold text-[#30392c]">{profile.email}</p>
+                <p className="text-xs text-[#8B8172]">Email terakhir digunakan</p>
+                <p className="mt-1 break-all text-sm font-semibold text-[#29261F]">{profile.email}</p>
               </div>
               <div>
-                <p className="text-xs text-[#858c7d]">Status keamanan akun</p>
-                <span className="mt-1.5 inline-flex items-center gap-2 rounded-full bg-[#f8e9d4] px-2.5 py-1.5 text-[11px] font-semibold text-[#94621f]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#c58a35]" />
+                <p className="text-xs text-[#8B8172]">Status keamanan akun</p>
+                <span className="mt-1.5 inline-flex items-center gap-2 rounded-full bg-[#F8E7A8] px-2.5 py-1.5 text-[11px] font-semibold text-[#29261F]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFF9EF]" />
                   Belum terhubung ke autentikasi
                 </span>
               </div>
             </div>
             <button
-              className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-lg bg-[#202a1e] px-4 text-sm font-semibold text-white transition hover:bg-[#35432f] sm:w-auto"
+              className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-lg bg-[#FFF9EF] px-4 text-sm font-semibold text-white transition hover:bg-[#E89B3C] sm:w-auto"
               onClick={() => setPasswordDialogOpen(true)}
               type="button"
             >
               Ubah Password
             </button>
           </div>
-          <p className="mt-4 rounded-lg bg-[#f8f9f4] px-3.5 py-3 text-xs leading-5 text-[#727a6d]">
+          <p className="mt-4 rounded-lg bg-[#F7F1E7] px-3.5 py-3 text-xs leading-5 text-[#8B8172]">
             Password tidak disimpan atau dikirim. Form hanya mendemonstrasikan validasi frontend.
           </p>
         </SettingsSection>
@@ -407,31 +408,7 @@ export default function AdminSettingsPage() {
           </div>
         </SettingsSection>
 
-        <SettingsSection
-          description="Preferensi ini hanya berlaku lokal dan tidak mengubah tampilan global aplikasi."
-          title="Preferensi"
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block">
-              <span className="text-xs font-semibold text-[#4d5548]">Bahasa</span>
-              <select className={fieldClassName} onChange={(event) => setLanguage(event.target.value)} value={language}>
-                <option>Bahasa Indonesia</option>
-                <option>English</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="text-xs font-semibold text-[#4d5548]">Tampilan</span>
-              <select className={fieldClassName} onChange={(event) => setAppearance(event.target.value)} value={appearance}>
-                <option>Light</option>
-                <option>Dark</option>
-                <option>System</option>
-              </select>
-            </label>
-          </div>
-          <p className="mt-3 text-xs leading-5 text-[#858c7d]">
-            Tema tidak diterapkan; pengaturan tampilan global belum tersedia.
-          </p>
-        </SettingsSection>
+        <PanelPreferences />
 
         <SettingsSection
           description="Informasi aplikasi dan peran yang digunakan pada UI development ini."
@@ -444,24 +421,24 @@ export default function AdminSettingsPage() {
               ["Role Saat Ini", "Super Admin"],
               ["Status Sistem", "Aktif"],
             ].map(([label, value]) => (
-              <div className="border-b border-[#202a1e]/[0.07] py-3 last:border-b-0" key={label}>
-                <dt className="text-xs text-[#858c7d]">{label}</dt>
-                <dd className="mt-1 text-sm font-semibold text-[#30392c]">{value}</dd>
+              <div className="border-b border-[#29261F]/[0.07] py-3 last:border-b-0" key={label}>
+                <dt className="text-xs text-[#8B8172]">{label}</dt>
+                <dd className="mt-1 text-sm font-semibold text-[#29261F]">{value}</dd>
               </div>
             ))}
           </dl>
         </SettingsSection>
 
-        <section className="min-w-0 rounded-xl border border-[#f0dfd7] bg-[#fffefa] p-4 sm:p-5 xl:col-span-2">
+        <section className="min-w-0 rounded-xl border border-[#29261F] bg-[#FFF9EF] p-4 sm:p-5 xl:col-span-2">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-base font-bold text-[#30392c]">Keluar</h2>
-              <p className="mt-1 text-xs leading-5 text-[#858c7d]">
+              <h2 className="text-base font-bold text-[#29261F]">Keluar</h2>
+              <p className="mt-1 text-xs leading-5 text-[#8B8172]">
                 Autentikasi belum terhubung. Tombol ini hanya menampilkan konfirmasi simulasi.
               </p>
             </div>
             <button
-              className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-lg border border-[#a34d3e]/25 px-5 text-sm font-semibold text-[#a34d3e] transition hover:bg-[#f8e9e5] sm:w-auto"
+              className="inline-flex min-h-10 w-full shrink-0 items-center justify-center rounded-lg border border-[#29261F]/25 px-5 text-sm font-semibold text-[#29261F] transition hover:bg-[#FFF9EF] sm:w-auto"
               onClick={() => setLogoutDialogOpen(true)}
               type="button"
             >
@@ -471,7 +448,7 @@ export default function AdminSettingsPage() {
         </section>
       </div>
 
-      <p className="text-center text-[11px] text-[#9aa092]">
+      <p className="text-center text-[11px] text-[#8B8172]">
         Profil dan preferensi disimpan sementara di state halaman. Autentikasi tidak tersedia.
       </p>
 
@@ -500,6 +477,15 @@ export default function AdminSettingsPage() {
           title="Konfirmasi Keluar"
         />
       ) : null}
+    </div>
+  );
+}
+
+export default function AdminSettingsPage() {
+  return (
+    <div className="space-y-6">
+      {ADMIN_DEV_MODE ? <AdminSettingsMock /> : <AdminSettingsApi />}
+      {!ADMIN_DEV_MODE ? <PanelPreferences /> : null}
     </div>
   );
 }

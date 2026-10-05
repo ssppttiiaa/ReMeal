@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ADMIN_DEV_MODE } from "../../../lib/adminDevMode";
+import { AdminOrdersApi } from "../_components/AdminApiViews";
 
 const orderStatuses = [
   "Menunggu Pembayaran",
@@ -222,18 +224,18 @@ const orders = [
 ];
 
 const orderStatusStyles = {
-  "Menunggu Pembayaran": "bg-[#f8e9d4] text-[#94621f]",
-  Diproses: "bg-[#dce9e7] text-[#3c6861]",
-  "Siap Diambil": "bg-[#e9eedf] text-[#637844]",
-  Selesai: "bg-[#e7edda] text-[#536738]",
-  Dibatalkan: "bg-[#f5dfd8] text-[#a34d3e]",
+  "Menunggu Pembayaran": "bg-[#F8E7A8] text-[#29261F]",
+  Diproses: "bg-[#E89B3C] text-[#29261F]",
+  "Siap Diambil": "bg-[#F4C542] text-[#29261F]",
+  Selesai: "bg-[#F4C542] text-[#29261F]",
+  Dibatalkan: "bg-[#29261F] text-white",
 };
 
 const paymentStatusStyles = {
-  Menunggu: "bg-[#f8e9d4] text-[#94621f]",
-  Berhasil: "bg-[#e9eedf] text-[#637844]",
-  Gagal: "bg-[#f5dfd8] text-[#a34d3e]",
-  Dikembalikan: "bg-[#eee8f3] text-[#725b84]",
+  Menunggu: "bg-[#F8E7A8] text-[#29261F]",
+  Berhasil: "bg-[#F4C542] text-[#29261F]",
+  Gagal: "bg-[#29261F] text-white",
+  Dikembalikan: "bg-[#F8E7A8] text-[#29261F]",
 };
 
 function formatPrice(value) {
@@ -273,9 +275,9 @@ function PaymentStatusBadge({ status }) {
 
 function DetailField({ label, children }) {
   return (
-    <div className="min-w-0 border-b border-[#202a1e]/[0.07] py-3">
-      <dt className="text-xs text-[#858c7d]">{label}</dt>
-      <dd className="mt-1 break-words text-sm font-semibold text-[#30392c]">{children}</dd>
+    <div className="min-w-0 border-b border-[#29261F]/[0.07] py-3">
+      <dt className="text-xs text-[#8B8172]">{label}</dt>
+      <dd className="mt-1 break-words text-sm font-semibold text-[#29261F]">{children}</dd>
     </div>
   );
 }
@@ -287,23 +289,23 @@ function OrderDetailDialog({ order, onClose }) {
     <div
       aria-labelledby="order-detail-title"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#202a1e]/45 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#FFF9EF]/45 p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
       role="dialog"
     >
-      <section className="my-auto w-full max-w-2xl rounded-xl bg-[#fffefa] p-5 shadow-xl sm:p-6">
+      <section className="my-auto w-full max-w-2xl rounded-xl bg-[#FFF9EF] p-5 shadow-xl sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-[#30392c]" id="order-detail-title">
+            <h2 className="text-lg font-bold text-[#29261F]" id="order-detail-title">
               Detail Pesanan
             </h2>
-            <p className="mt-1 break-all text-xs text-[#858c7d]">{order.id}</p>
+            <p className="mt-1 break-all text-xs text-[#8B8172]">{order.id}</p>
           </div>
           <button
             aria-label="Tutup detail pesanan"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#727a6d] transition hover:bg-[#f4f5ef]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-lg text-[#8B8172] transition hover:bg-[#F7F1E7]"
             onClick={onClose}
             type="button"
           >
@@ -313,7 +315,7 @@ function OrderDetailDialog({ order, onClose }) {
 
         <div className="mt-5 space-y-5">
           <section aria-label="Informasi Pesanan">
-            <h3 className="text-sm font-bold text-[#30392c]">A. Informasi Pesanan</h3>
+            <h3 className="text-sm font-bold text-[#29261F]">A. Informasi Pesanan</h3>
             <dl className="mt-1 grid gap-x-5 sm:grid-cols-2">
               <DetailField label="ID Pesanan">{order.id}</DetailField>
               <DetailField label="Waktu Pesanan">{formatDate(order.orderDate)}</DetailField>
@@ -322,7 +324,7 @@ function OrderDetailDialog({ order, onClose }) {
           </section>
 
           <section aria-label="Produk">
-            <h3 className="text-sm font-bold text-[#30392c]">B. Produk</h3>
+            <h3 className="text-sm font-bold text-[#29261F]">B. Produk</h3>
             <dl className="mt-1 grid gap-x-5 sm:grid-cols-2">
               <DetailField label="Nama Produk">{order.productName}</DetailField>
               <DetailField label="Jumlah">{order.quantity} item</DetailField>
@@ -332,7 +334,7 @@ function OrderDetailDialog({ order, onClose }) {
           </section>
 
           <section aria-label="UMKM">
-            <h3 className="text-sm font-bold text-[#30392c]">C. UMKM</h3>
+            <h3 className="text-sm font-bold text-[#29261F]">C. UMKM</h3>
             <dl className="mt-1 grid gap-x-5 sm:grid-cols-2">
               <DetailField label="Nama Toko">{order.storeName}</DetailField>
               <DetailField label="Lokasi">{order.storeLocation}</DetailField>
@@ -340,7 +342,7 @@ function OrderDetailDialog({ order, onClose }) {
           </section>
 
           <section aria-label="Konsumen">
-            <h3 className="text-sm font-bold text-[#30392c]">D. Konsumen</h3>
+            <h3 className="text-sm font-bold text-[#29261F]">D. Konsumen</h3>
             <dl className="mt-1 grid gap-x-5 sm:grid-cols-2">
               <DetailField label="Nama">{order.consumerName}</DetailField>
               <DetailField label="Email">{order.consumerEmail}</DetailField>
@@ -348,7 +350,7 @@ function OrderDetailDialog({ order, onClose }) {
           </section>
 
           <section aria-label="Pembayaran">
-            <h3 className="text-sm font-bold text-[#30392c]">E. Pembayaran</h3>
+            <h3 className="text-sm font-bold text-[#29261F]">E. Pembayaran</h3>
             <dl className="mt-1 grid gap-x-5 sm:grid-cols-2">
               <DetailField label="Metode Pembayaran">{order.paymentMethod}</DetailField>
               <DetailField label="Total">{formatPrice(order.total)}</DetailField>
@@ -357,7 +359,7 @@ function OrderDetailDialog({ order, onClose }) {
           </section>
 
           <section aria-label="Pickup">
-            <h3 className="text-sm font-bold text-[#30392c]">F. Pickup</h3>
+            <h3 className="text-sm font-bold text-[#29261F]">F. Pickup</h3>
             <dl className="mt-1 grid gap-x-5 sm:grid-cols-2">
               <DetailField label="Batas Pengambilan">{order.pickupDeadline}</DetailField>
               <DetailField label="Status QR">
@@ -369,7 +371,7 @@ function OrderDetailDialog({ order, onClose }) {
 
         <div className="mt-5 flex justify-end">
           <button
-            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#202a1e] px-5 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#FFF9EF] px-5 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
             onClick={onClose}
             type="button"
           >
@@ -383,30 +385,30 @@ function OrderDetailDialog({ order, onClose }) {
 
 function OrderCard({ order, onView }) {
   return (
-    <article className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4">
+    <article className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="break-all text-sm font-bold text-[#30392c]">{order.id}</p>
-          <p className="mt-1 text-[11px] text-[#858c7d]">{formatDate(order.orderDate)}</p>
+          <p className="break-all text-sm font-bold text-[#29261F]">{order.id}</p>
+          <p className="mt-1 text-[11px] text-[#8B8172]">{formatDate(order.orderDate)}</p>
         </div>
         <OrderStatusBadge status={order.orderStatus} />
       </div>
-      <p className="mt-4 break-words text-sm font-semibold leading-5 text-[#30392c]">
+      <p className="mt-4 break-words text-sm font-semibold leading-5 text-[#29261F]">
         {order.productName} ×{order.quantity}
       </p>
-      <p className="mt-1 break-words text-xs text-[#727a6d]">{order.storeName}</p>
-      <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[#202a1e]/[0.07] pt-3 text-xs">
+      <p className="mt-1 break-words text-xs text-[#8B8172]">{order.storeName}</p>
+      <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[#29261F]/[0.07] pt-3 text-xs">
         <div>
-          <p className="text-[#858c7d]">Total</p>
-          <p className="mt-1 font-semibold text-[#30392c]">{formatPrice(order.total)}</p>
+          <p className="text-[#8B8172]">Total</p>
+          <p className="mt-1 font-semibold text-[#29261F]">{formatPrice(order.total)}</p>
         </div>
         <div>
-          <p className="text-[#858c7d]">Pembayaran</p>
+          <p className="text-[#8B8172]">Pembayaran</p>
           <div className="mt-1"><PaymentStatusBadge status={order.paymentStatus} /></div>
         </div>
       </div>
       <button
-        className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-lg bg-[#202a1e] px-3 text-sm font-semibold text-white transition hover:bg-[#35432f]"
+        className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-lg bg-[#FFF9EF] px-3 text-sm font-semibold text-white transition hover:bg-[#E89B3C]"
         onClick={() => onView(order)}
         type="button"
       >
@@ -422,7 +424,7 @@ function Pagination({ currentPage, totalPages, onChange }) {
   return (
     <nav aria-label="Pagination pesanan" className="flex flex-wrap items-center justify-center gap-1.5">
       <button
-        className="min-h-10 rounded-lg border border-[#202a1e]/10 px-3 text-xs font-semibold text-[#596745] transition hover:bg-[#f4f5ef] disabled:cursor-not-allowed disabled:opacity-40"
+        className="min-h-10 rounded-lg border border-[#29261F]/10 px-3 text-xs font-semibold text-[#29261F] transition hover:bg-[#F7F1E7] disabled:cursor-not-allowed disabled:opacity-40"
         disabled={currentPage === 1}
         onClick={() => onChange(currentPage - 1)}
         type="button"
@@ -434,8 +436,8 @@ function Pagination({ currentPage, totalPages, onChange }) {
           aria-current={currentPage === page ? "page" : undefined}
           className={`grid h-10 min-w-10 place-items-center rounded-lg px-3 text-xs font-semibold transition ${
             currentPage === page
-              ? "bg-[#202a1e] text-white"
-              : "border border-[#202a1e]/10 text-[#596745] hover:bg-[#f4f5ef]"
+              ? "bg-[#FFF9EF] text-white"
+              : "border border-[#29261F]/10 text-[#29261F] hover:bg-[#F7F1E7]"
           }`}
           key={page}
           onClick={() => onChange(page)}
@@ -445,7 +447,7 @@ function Pagination({ currentPage, totalPages, onChange }) {
         </button>
       ))}
       <button
-        className="min-h-10 rounded-lg border border-[#202a1e]/10 px-3 text-xs font-semibold text-[#596745] transition hover:bg-[#f4f5ef] disabled:cursor-not-allowed disabled:opacity-40"
+        className="min-h-10 rounded-lg border border-[#29261F]/10 px-3 text-xs font-semibold text-[#29261F] transition hover:bg-[#F7F1E7] disabled:cursor-not-allowed disabled:opacity-40"
         disabled={currentPage === totalPages}
         onClick={() => onChange(currentPage + 1)}
         type="button"
@@ -472,7 +474,7 @@ function matchesDateFilter(order, dateFilter) {
   return elapsedDays >= 0 && elapsedDays < 30;
 }
 
-export default function AdminOrdersPage() {
+function AdminOrdersMock() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("Semua Status");
   const [dateFilter, setDateFilter] = useState("Semua Waktu");
@@ -494,11 +496,11 @@ export default function AdminOrdersPage() {
   const totalPages = Math.ceil(filteredOrders.length / pageSize);
   const visibleOrders = filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const summaryCards = [
-    { label: "Total Pesanan", value: orders.length, mark: "P", tone: "bg-[#e7edda] text-[#536738]" },
-    { label: "Menunggu Pembayaran", value: orders.filter((order) => order.orderStatus === "Menunggu Pembayaran").length, mark: "M", tone: "bg-[#f8e5c9] text-[#8b5924]" },
-    { label: "Diproses", value: orders.filter((order) => order.orderStatus === "Diproses").length, mark: "D", tone: "bg-[#dce9e7] text-[#3c6861]" },
-    { label: "Siap Diambil", value: orders.filter((order) => order.orderStatus === "Siap Diambil").length, mark: "A", tone: "bg-[#e9eedf] text-[#637844]" },
-    { label: "Selesai", value: orders.filter((order) => order.orderStatus === "Selesai").length, mark: "✓", tone: "bg-[#e7edda] text-[#536738]" },
+    { label: "Total Pesanan", value: orders.length, mark: "P", tone: "bg-[#F4C542] text-[#29261F]" },
+    { label: "Menunggu Pembayaran", value: orders.filter((order) => order.orderStatus === "Menunggu Pembayaran").length, mark: "M", tone: "bg-[#F8E7A8] text-[#29261F]" },
+    { label: "Diproses", value: orders.filter((order) => order.orderStatus === "Diproses").length, mark: "D", tone: "bg-[#E89B3C] text-[#29261F]" },
+    { label: "Siap Diambil", value: orders.filter((order) => order.orderStatus === "Siap Diambil").length, mark: "A", tone: "bg-[#F4C542] text-[#29261F]" },
+    { label: "Selesai", value: orders.filter((order) => order.orderStatus === "Selesai").length, mark: "✓", tone: "bg-[#F4C542] text-[#29261F]" },
   ];
 
   function changeFilters(update) {
@@ -509,42 +511,42 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8b927f]">Manajemen platform</p>
-        <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#202a1e] sm:text-[30px]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8B8172]">Manajemen platform</p>
+        <h1 className="mt-1.5 text-[26px] font-bold leading-tight tracking-[-0.035em] text-[#29261F] sm:text-[30px]">
           Orders
         </h1>
-        <p className="mt-2 text-sm leading-6 text-[#727a6d]">
+        <p className="mt-2 text-sm leading-6 text-[#8B8172]">
           Pantau pesanan, pembayaran, dan pengambilan produk di toko ReMeal.
         </p>
       </header>
 
       <section aria-label="Ringkasan pesanan" className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
         {summaryCards.map((summary) => (
-          <article className="min-w-0 rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4 sm:p-5" key={summary.label}>
+          <article className="min-w-0 rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-5" key={summary.label}>
             <div className="flex items-start justify-between gap-2">
-              <p className="min-h-8 text-xs font-medium leading-4 text-[#727a6d]">{summary.label}</p>
+              <p className="min-h-8 text-xs font-medium leading-4 text-[#8B8172]">{summary.label}</p>
               <span className={`grid h-8 min-w-8 shrink-0 place-items-center rounded-lg px-1.5 text-xs font-bold ${summary.tone}`}>
                 {summary.mark}
               </span>
             </div>
-            <p className="mt-3 break-words text-[23px] font-bold leading-none tracking-[-0.04em] text-[#202a1e] sm:text-[26px]">
+            <p className="mt-3 break-words text-[23px] font-bold leading-none tracking-[-0.04em] text-[#29261F] sm:text-[26px]">
               {summary.value.toLocaleString("id-ID")}
             </p>
-            <p className="mt-2.5 text-[10px] leading-4 text-[#8b927f]">pesanan contoh</p>
+            <p className="mt-2.5 text-[10px] leading-4 text-[#8B8172]">pesanan contoh</p>
           </article>
         ))}
       </section>
 
       <section
         aria-label="Cari dan filter pesanan"
-        className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] p-4 sm:p-5"
+        className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] p-4 sm:p-5"
       >
         <div className="grid gap-3 md:grid-cols-[minmax(220px,1fr)_minmax(190px,220px)_minmax(180px,210px)]">
           <label className="relative block">
             <span className="sr-only">Cari pesanan, produk, atau toko</span>
-            <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#858c7d]">⌕</span>
+            <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8B8172]">⌕</span>
             <input
-              className="h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white pl-9 pr-3 text-sm text-[#30392c] outline-none transition placeholder:text-[#a0a497] focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+              className="h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white pl-9 pr-3 text-sm text-[#29261F] outline-none transition placeholder:text-[#8B8172] focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
               onChange={(event) => changeFilters(() => setSearch(event.target.value))}
               placeholder="Cari ID pesanan, produk, atau toko..."
               type="search"
@@ -554,7 +556,7 @@ export default function AdminOrdersPage() {
           <label className="block">
             <span className="sr-only">Filter status pesanan</span>
             <select
-              className="h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white px-3 text-sm text-[#4d5548] outline-none focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+              className="h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
               onChange={(event) => changeFilters(() => setStatus(event.target.value))}
               value={status}
             >
@@ -565,7 +567,7 @@ export default function AdminOrdersPage() {
           <label className="block">
             <span className="sr-only">Filter tanggal pesanan</span>
             <select
-              className="h-11 w-full min-w-0 rounded-lg border border-[#202a1e]/10 bg-white px-3 text-sm text-[#4d5548] outline-none focus:border-[#8b9d5e] focus:ring-2 focus:ring-[#dfe8ca]"
+              className="h-11 w-full min-w-0 rounded-lg border border-[#29261F]/10 bg-white px-3 text-sm text-[#29261F] outline-none focus:border-[#29261F] focus:ring-2 focus:ring-[#E89B3C]"
               onChange={(event) => changeFilters(() => setDateFilter(event.target.value))}
               value={dateFilter}
             >
@@ -577,8 +579,8 @@ export default function AdminOrdersPage() {
 
       <section aria-label="Daftar pesanan" className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-bold text-[#30392c]">Daftar Pesanan</h2>
-          <span className="text-xs text-[#858c7d]">
+          <h2 className="text-sm font-bold text-[#29261F]">Daftar Pesanan</h2>
+          <span className="text-xs text-[#8B8172]">
             {filteredOrders.length === 0
               ? "0 pesanan"
               : `${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, filteredOrders.length)} dari ${filteredOrders.length} pesanan`}
@@ -586,9 +588,9 @@ export default function AdminOrdersPage() {
         </div>
 
         {filteredOrders.length === 0 ? (
-          <div className="rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] px-5 py-12 text-center">
-            <h3 className="text-sm font-bold text-[#30392c]">Pesanan tidak ditemukan</h3>
-            <p className="mt-1.5 text-sm text-[#858c7d]">
+          <div className="rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] px-5 py-12 text-center">
+            <h3 className="text-sm font-bold text-[#29261F]">Pesanan tidak ditemukan</h3>
+            <p className="mt-1.5 text-sm text-[#8B8172]">
               Coba ubah kata kunci atau filter yang digunakan.
             </p>
           </div>
@@ -600,7 +602,7 @@ export default function AdminOrdersPage() {
               ))}
             </div>
 
-            <div className="hidden overflow-x-auto rounded-xl border border-[#202a1e]/[0.07] bg-[#fffefa] lg:block">
+            <div className="hidden overflow-x-auto rounded-xl border border-[#29261F]/[0.07] bg-[#FFF9EF] lg:block">
               <table className="w-full min-w-[1450px] table-fixed text-left">
                 <colgroup>
                   <col className="w-[9%]" />
@@ -613,8 +615,8 @@ export default function AdminOrdersPage() {
                   <col className="w-[14%]" />
                   <col className="w-[9%]" />
                 </colgroup>
-                <thead className="border-b border-[#202a1e]/[0.07] bg-[#f8f9f4]">
-                  <tr className="text-[11px] font-semibold text-[#727a6d]">
+                <thead className="border-b border-[#29261F]/[0.07] bg-[#F7F1E7]">
+                  <tr className="text-[11px] font-semibold text-[#8B8172]">
                     <th className="px-4 py-3.5">ID Pesanan</th>
                     <th className="px-4 py-3.5">Produk</th>
                     <th className="px-4 py-3.5">UMKM</th>
@@ -626,23 +628,23 @@ export default function AdminOrdersPage() {
                     <th className="px-4 py-3.5">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#202a1e]/[0.07]">
+                <tbody className="divide-y divide-[#29261f]/[0.07]">
                   {visibleOrders.map((order) => (
-                    <tr className="text-xs text-[#30392c]" key={order.id}>
+                    <tr className="text-xs text-[#29261F]" key={order.id}>
                       <td className="break-all px-4 py-3.5 font-bold">{order.id}</td>
                       <td className="break-words px-4 py-3.5">
                         <span className="font-medium">{order.productName}</span>
-                        <span className="mt-1 block text-[10px] text-[#858c7d]">×{order.quantity}</span>
+                        <span className="mt-1 block text-[10px] text-[#8B8172]">×{order.quantity}</span>
                       </td>
                       <td className="break-words px-4 py-3.5">{order.storeName}</td>
                       <td className="break-words px-4 py-3.5">{order.consumerName}</td>
                       <td className="px-4 py-3.5 font-semibold">{formatPrice(order.total)}</td>
                       <td className="px-4 py-3.5"><PaymentStatusBadge status={order.paymentStatus} /></td>
                       <td className="px-4 py-3.5"><OrderStatusBadge status={order.orderStatus} /></td>
-                      <td className="px-4 py-3.5 text-[#727a6d]">{formatDate(order.orderDate)}</td>
+                      <td className="px-4 py-3.5 text-[#8B8172]">{formatDate(order.orderDate)}</td>
                       <td className="px-4 py-3.5">
                         <button
-                          className="whitespace-nowrap text-xs font-semibold text-[#637844] transition hover:text-[#40532c]"
+                          className="whitespace-nowrap text-xs font-semibold text-[#29261F] transition hover:text-[#29261F]"
                           onClick={() => setSelectedOrder(order)}
                           type="button"
                         >
@@ -662,7 +664,7 @@ export default function AdminOrdersPage() {
         )}
       </section>
 
-      <p className="text-center text-[11px] text-[#9aa092]">
+      <p className="text-center text-[11px] text-[#8B8172]">
         Daftar pesanan contoh — belum terhubung ke database.
       </p>
 
@@ -671,4 +673,8 @@ export default function AdminOrdersPage() {
       ) : null}
     </div>
   );
+}
+
+export default function AdminOrdersPage() {
+  return ADMIN_DEV_MODE ? <AdminOrdersMock /> : <AdminOrdersApi />;
 }

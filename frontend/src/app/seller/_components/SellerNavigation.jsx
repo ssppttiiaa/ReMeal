@@ -61,14 +61,14 @@ export function NavigationLinks({ mobile = false }) {
         aria-current={active ? "page" : undefined}
         className={
           mobile
-            ? `flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
+            ? `panel-nav-link flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
                 active
-                  ? "bg-[#e2f27b] text-[#202a1e]"
+                  ? "bg-[#F4C542] text-[#29261F]"
                   : "text-white/65 hover:bg-white/10 hover:text-white"
               }`
-            : `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+            : `panel-nav-link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                 active
-                  ? "bg-[#e2f27b] text-[#202a1e]"
+                  ? "bg-[#F4C542] text-[#29261F]"
                   : "text-white/65 hover:bg-white/10 hover:text-white"
               }`
         }
@@ -77,7 +77,7 @@ export function NavigationLinks({ mobile = false }) {
       >
         <Icon className="h-[18px] w-[18px] shrink-0" name={item.icon} />
         <span>{item.label}</span>
-        {active && !mobile ? <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#52672b]" /> : null}
+        {active && !mobile ? <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#F4C542]" /> : null}
       </Link>
     );
   });
