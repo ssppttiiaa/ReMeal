@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Utensils, Leaf, HeartHandshake, CheckCircle2, Store, Wallet, Recycle } from 'lucide-react';
 import { homePage, getHomeSection } from './home-page-data';
 
@@ -92,11 +93,16 @@ function HeroSection() {
       </div>
       
       <div className="flex-1 w-full flex justify-center z-10 mt-10 md:mt-0">
-        <div className="relative w-full max-w-md aspect-square bg-[#ffe4a9] border-4 border-[#211f1c] rounded-[2rem] shadow-[8px_8px_0px_0px_#211f1c] overflow-hidden -rotate-2 hover:rotate-0 transition-transform duration-500 flex items-center justify-center p-8">
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
-          <p className="text-2xl font-black text-[#211f1c] text-center border-4 border-[#211f1c] bg-[#fff9ef] p-6 rounded-2xl shadow-[4px_4px_0px_0px_#211f1c] rotate-3">
-            {data.visual}
-          </p>
+        <div className="relative w-full max-w-xl aspect-[16/9] border-4 border-[#211f1c] rounded-[2rem] shadow-[8px_8px_0px_0px_#211f1c] overflow-hidden -rotate-2 hover:rotate-0 transition-transform duration-500">
+          <Image
+            src="/remeal-food-rescue.png"
+            alt={data.visual}
+            width={1365}
+            height={768}
+            priority
+            className="h-full w-full object-cover"
+            sizes="(max-width: 768px) 100vw, 576px"
+          />
         </div>
       </div>
     </section>
