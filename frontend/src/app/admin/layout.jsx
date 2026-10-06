@@ -1,6 +1,6 @@
-import Link from "next/link";
 import PanelTheme from "../_components/PanelPreferences";
 import PanelAuthGuard from "../_components/PanelAuthGuard";
+import BrandLogo from "../_components/BrandLogo";
 import { AdminHeader, AdminNavigation } from "./_components/AdminChrome";
 
 export const metadata = {
@@ -15,17 +15,7 @@ export default function AdminLayout({ children }) {
       <PanelTheme />
       <div className="flex min-h-screen">
         <aside className="hidden w-[250px] shrink-0 flex-col border-r px-5 py-6 lg:flex">
-          <Link aria-label="ReMeal Admin, ke dashboard" className="flex items-center gap-3 px-2" href="/admin">
-            <span className="panel-brand-mark grid h-10 w-10 place-items-center rounded-xl text-sm font-black">
-              R.
-            </span>
-            <span>
-              <span className="block text-lg font-bold leading-tight tracking-[0.02em]">ReMeal</span>
-              <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
-                Admin Console
-              </span>
-            </span>
-          </Link>
+          <BrandLogo ariaLabel="ReMeal Admin, ke dashboard" href="/admin" subtitle="Admin Console" />
 
           <div className="mt-10 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#29261F]">
             Platform

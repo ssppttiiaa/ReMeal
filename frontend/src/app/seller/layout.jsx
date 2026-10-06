@@ -1,7 +1,7 @@
-import Link from "next/link";
 import PanelTheme from "../_components/PanelPreferences";
 import PanelAuthGuard from "../_components/PanelAuthGuard";
 import LogoutButton from "../_components/LogoutButton";
+import BrandLogo from "../_components/BrandLogo";
 import { Icon, NavigationLinks, SellerSidebarProfile, SellerHeaderProfile, SellerUserDropdown } from "./_components/SellerNavigation";
 
 export const metadata = {
@@ -16,17 +16,7 @@ export default function SellerLayout({ children }) {
       <PanelTheme />
       <div className="flex min-h-screen">
         <aside className="hidden w-[250px] shrink-0 flex-col border-r px-5 py-6 lg:flex">
-          <Link aria-label="ReMeal Seller, ke dashboard" className="flex items-center gap-3 px-2" href="/seller">
-            <span className="panel-brand-mark grid h-10 w-10 place-items-center rounded-xl text-sm font-black">
-              R.
-            </span>
-            <span>
-              <span className="block text-lg font-bold leading-tight tracking-[0.02em]">ReMeal</span>
-              <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
-                Ruang Mitra
-              </span>
-            </span>
-          </Link>
+          <BrandLogo ariaLabel="ReMeal Seller, ke dashboard" href="/seller" subtitle="Ruang Mitra" />
 
           <div className="mt-10 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#29261F]">
             Menu utama

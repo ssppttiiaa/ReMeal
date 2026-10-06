@@ -75,15 +75,15 @@ function StatusBadge({ status }) {
 
 function ProductActions({ product, onDelete, onClose }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+    <div className="flex items-center gap-2 flex-nowrap">
       <Link
-        className="text-sm font-semibold text-[#29261F] transition hover:text-[#29261F]"
+        className="inline-flex items-center justify-center rounded-lg bg-[#F4C542] px-3 py-1.5 text-xs font-bold text-[#29261F] transition hover:bg-[#E89B3C]"
         href={`/seller/products/${product.id}/edit`}
       >
         Edit
       </Link>
       <button
-        className="text-sm font-semibold text-[#29261F] transition hover:text-[#29261F]"
+        className="inline-flex items-center justify-center rounded-lg bg-red-100 px-3 py-1.5 text-xs font-bold text-red-700 transition hover:bg-red-200"
         onClick={() => onDelete(product.id)}
         type="button"
       >
@@ -91,7 +91,7 @@ function ProductActions({ product, onDelete, onClose }) {
       </button>
       {!["Penjualan Ditutup", "Habis"].includes(product.status) ? (
         <button
-          className="text-sm font-semibold text-[#29261F] transition hover:text-[#29261F]"
+          className="inline-flex items-center justify-center rounded-lg border border-[#29261F]/20 bg-white px-3 py-1.5 text-xs font-bold text-[#29261F] transition hover:bg-gray-50"
           onClick={() => onClose(product.id)}
           type="button"
         >
@@ -368,14 +368,14 @@ useEffect(() => {
             </div>
 
             <div className="hidden overflow-x-auto xl:block">
-              <table className="w-full min-w-[820px] table-fixed text-left">
+              <table className="w-full min-w-[960px] table-fixed text-left">
                 <colgroup>
-                  <col className="w-[34%]" />
-                  <col className="w-[18%]" />
-                  <col className="w-[8%]" />
-                  <col className="w-[18%]" />
+                  <col className="w-[26%]" />
+                  <col className="w-[15%]" />
+                  <col className="w-[7%]" />
+                  <col className="w-[15%]" />
                   <col className="w-[12%]" />
-                  <col className="w-[10%]" />
+                  <col className="w-[25%]" />
                 </colgroup>
                 <thead className="bg-[#F7F1E7] text-xs font-semibold uppercase tracking-[0.08em] text-[#8B8172]">
                   <tr>

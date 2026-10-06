@@ -48,7 +48,6 @@ export default function LoginPage() {
           {[
             ["🛍️", "Pembeli", "#dcebd3"],
             ["🏪", "Mitra Toko", "#ffe4a9"],
-            ["🛡️", "Admin", "#f7d4c9"],
           ].map(([icon, label, bg]) => (
             <div
               key={label}

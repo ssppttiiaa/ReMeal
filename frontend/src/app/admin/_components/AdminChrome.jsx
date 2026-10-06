@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoutButton from "../../_components/LogoutButton";
+import { BrandMark } from "../../_components/BrandLogo";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
@@ -125,9 +126,7 @@ export function AdminHeader() {
     <header className="sticky top-0 z-20 border-b border-[#29261F]/[0.08] bg-[#FFF9EF]/95">
       <div className="flex h-[72px] items-center justify-between gap-4 px-4 sm:px-7 xl:px-10">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="panel-brand-mark grid h-9 w-9 shrink-0 place-items-center rounded-lg text-xs font-black lg:hidden">
-            R.
-          </span>
+          <BrandMark size="sm" className="lg:hidden" />
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-[#29261F]">{title}</p>
             <p className="mt-0.5 text-xs text-[#8B8172]">Panel administrasi ReMeal</p>

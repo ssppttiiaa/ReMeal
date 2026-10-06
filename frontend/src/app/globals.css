@@ -224,6 +224,33 @@ body {
   color: var(--remeal-dark) !important;
 }
 
+/* Logo ReMeal (serasi dengan landing page) */
+.brand-logo-mark {
+  border: 2px solid var(--remeal-dark);
+  background: #ffc72c;
+  color: #211f1c;
+  box-shadow: 2px 2px 0 0 var(--remeal-dark);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.brand-logo:hover .brand-logo-mark {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 0 var(--remeal-dark);
+}
+
+.brand-logo-badge {
+  border: 2px solid var(--remeal-dark);
+  border-radius: 0.375rem;
+  background: #ffe4a9;
+  color: #211f1c;
+  padding: 0.05rem 0.4rem;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
 .remeal-panel > div > aside > div:last-child {
   border-color: var(--remeal-dark) !important;
   background: var(--remeal-soft-accent) !important;

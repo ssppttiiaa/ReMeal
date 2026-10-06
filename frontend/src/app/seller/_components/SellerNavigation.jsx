@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { getMyStore } from "../../../services/stores";
+import { BrandMark } from "../../_components/BrandLogo";
 
 const navigation = [
   { label: "Dashboard", href: "/seller", icon: "dashboard" },
@@ -147,9 +148,7 @@ export function SellerHeaderProfile() {
   return (
     <>
       <div className="flex min-w-0 items-center gap-3">
-        <span className="panel-brand-mark grid h-9 w-9 shrink-0 place-items-center rounded-lg text-xs font-black lg:hidden">
-          R.
-        </span>
+        <BrandMark size="sm" className="lg:hidden" />
         <div className="min-w-0">
           <p className="truncate text-sm font-bold">{profile.storeName}</p>
           <p className="mt-0.5 text-xs text-[#8B8172]">Panel pengelolaan toko</p>
