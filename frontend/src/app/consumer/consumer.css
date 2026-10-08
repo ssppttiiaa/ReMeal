@@ -1214,9 +1214,8 @@ button {
 
 .store-profile {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 14px;
-  margin-top: -32px;
   padding: 0 24px;
   position: relative;
 }
@@ -1226,6 +1225,7 @@ button {
   height: 64px;
   border: 4px solid var(--paper);
   font-size: 20px;
+  margin-top: -32px;
 }
 
 .store-profile h1 {

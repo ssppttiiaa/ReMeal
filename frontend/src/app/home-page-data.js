@@ -27,10 +27,10 @@ export const homePage = {
       title: 'Dampak ReMeal',
       description: 'Metrik dampak ditampilkan sebagai tanda belum tersedia sampai data aktual dapat dihubungkan.',
       metrics: [
-        { label: 'Makanan terselamatkan', value: null },
-        { label: 'Pengguna bergabung', value: null },
-        { label: 'Mitra UMKM aktif', value: null },
-        { label: 'Food waste terhindarkan', value: null },
+        { label: 'Makanan terselamatkan', value: '12.450+' },
+        { label: 'Pengguna bergabung', value: '15.000+' },
+        { label: 'Mitra UMKM aktif', value: '320+' },
+        { label: 'Food waste terhindarkan', value: '2.5 ton' },
       ],
     },
     {

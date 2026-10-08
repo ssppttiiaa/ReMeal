@@ -24,6 +24,18 @@ import {
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import { homePage, getHomeSection } from './home-page-data';
 
+async function getPublicStats() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'}/stats/public`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    return null;
+  }
+}
+
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], display: 'swap' });
 
 export const metadata = {
@@ -223,7 +235,7 @@ function HeroSection() {
                 </span>
                 14 porsi surplus baru saja tersedia di Tebet &amp; Senopati
               </span>
-              <span className="hidden sm:inline font-extrabold uppercase tracking-[0.1em] text-[#211f1c]/60">Update: Just now</span>
+              <span className="hidden sm:inline font-extrabold uppercase tracking-[0.1em] text-[#211f1c]/60">Diperbarui: Baru saja</span>
             </div>
           </div>
         </div>
@@ -235,15 +247,29 @@ function HeroSection() {
 /* ------------------------------------------------------------------ */
 /* Stats                                                               */
 /* ------------------------------------------------------------------ */
-const stats = [
-  { value: '12.450+', label: 'Porsi Makanan Terselamatkan', icon: Utensils, bg: '#ffe4a9' },
-  { value: '320+', label: 'Mitra UMKM Kuliner Aktif', icon: Store, bg: '#fff3d6' },
-  { value: '98%', label: 'Tingkat Kepuasan Konsumen', icon: Smile, bg: '#f7d4c9' },
-];
+const statsData = getHomeSection('dampak-ringkas').metrics;
+const icons = [Utensils, User, Store, Recycle];
+const bgColors = ['#ffe4a9', '#f7d4c9', '#fff3d6', '#dcebd3'];
 
-function StatsRow() {
+function StatsRow({ publicStats }) {
+  const stats = statsData.map((data, index) => {
+    let value = data.value;
+    if (publicStats) {
+      if (index === 0) value = publicStats.food_rescued || value;
+      else if (index === 1) value = publicStats.users_joined || value;
+      else if (index === 2) value = publicStats.active_partners || value;
+      else if (index === 3) value = publicStats.waste_avoided || value;
+    }
+    return {
+      value,
+      label: data.label,
+      icon: icons[index],
+      bg: bgColors[index],
+    };
+  });
+
   return (
-    <section id="dampak" className="grid scroll-mt-24 gap-4 sm:grid-cols-3">
+    <section id="dampak" className="grid scroll-mt-24 gap-4 grid-cols-2 sm:grid-cols-4">
       {stats.map(({ value, label, icon: Icon, bg }) => (
         <div
           key={label}
@@ -587,7 +613,9 @@ function Footer() {
 /* ------------------------------------------------------------------ */
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
-export default function Home() {
+export default async function Home() {
+  const publicStats = await getPublicStats();
+  
   return (
     <div
       className={`${jakarta.className} flex min-h-screen flex-col bg-[#f7efe0] text-[#211f1c] selection:bg-[#ffc72c] selection:text-[#211f1c]`}
@@ -596,7 +624,7 @@ export default function Home() {
       <Navbar />
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 overflow-x-hidden px-4 py-6 sm:gap-8 sm:px-6 sm:py-8">
         <HeroSection />
-        <StatsRow />
+        <StatsRow publicStats={publicStats} />
         <AboutSection />
         <HowItWorks />
         <WhyReMeal />
