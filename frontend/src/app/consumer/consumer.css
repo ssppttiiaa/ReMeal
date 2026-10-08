@@ -895,6 +895,7 @@ button {
   background: var(--lime);
   font-size: 28px;
   flex: 0 0 auto;
+  overflow: hidden;
 }
 
 .line-item-copy {
